@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document, Types, SchemaTypes } from 'mongoose';
 
 export type ServiceDocument = Service & Document;
 
@@ -7,13 +7,13 @@ export type ServiceDocument = Service & Document;
 export class Service {
   _id: string;
 
-  @Prop()
+  @Prop({ type: SchemaTypes.ObjectId })
   cardId: Types.ObjectId;
 
-  @Prop()
+  @Prop({ type: SchemaTypes.ObjectId })
   customerId: Types.ObjectId;
 
-  @Prop()
+  @Prop({ type: SchemaTypes.ObjectId })
   escortId: Types.ObjectId;
 
   @Prop()
@@ -26,7 +26,7 @@ export class Service {
   timeQuantity: number;
 
   @Prop()
-  timeMeasurementUnit: number;
+  timeMeasurementUnit: string;
 
   @Prop({ default: new Date().toUTCString() })
   createdAt: Date;

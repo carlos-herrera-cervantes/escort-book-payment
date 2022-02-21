@@ -3,11 +3,11 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class CreateCardDTO {
   @IsNotEmpty()
   @IsString()
-  customerId: string;
+  cvv: string;
 
   @IsOptional()
   @IsString()
-  token: string;
+  expiration: string;
 
   @IsNotEmpty()
   @IsString()

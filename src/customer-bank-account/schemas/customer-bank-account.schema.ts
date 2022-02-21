@@ -20,4 +20,4 @@ export class CustomerBankAccount {
   updateAt: Date;
 }
 
-export const CardSchema = SchemaFactory.createForClass(CustomerBankAccount);
+export const CustomerBankAccountSchema = SchemaFactory.createForClass(CustomerBankAccount);

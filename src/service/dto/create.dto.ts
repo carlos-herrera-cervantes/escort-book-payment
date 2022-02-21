@@ -1,12 +1,13 @@
-import { IsDecimal, IsEnum, IsNotEmpty, IsNumber, IsString } from "class-validator";
-import { ServiceStatus } from "../enums/status.enum";
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { ServiceStatus } from '../enums/status.enum';
+import { TimeUnit } from '../enums/time-unit.enum';
 
 export class CreateServiceDTO {
   @IsNotEmpty()
   @IsString()
   cardId: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   customerId: string;
 
@@ -15,18 +16,17 @@ export class CreateServiceDTO {
   escortId: string;
 
   @IsNotEmpty()
-  @IsDecimal()
+  @IsNumber()
   price: number;
 
-  @IsNotEmpty()
   @IsEnum(ServiceStatus)
-  status: ServiceStatus;
+  status: ServiceStatus = ServiceStatus.Boarding;
 
   @IsNotEmpty()
   @IsNumber()
   timeQuantity: number;
 
   @IsNotEmpty()
-  @IsString()
-  timeMeasurementUnit: string;
+  @IsEnum(TimeUnit)
+  timeMeasurementUnit: TimeUnit;
 }
