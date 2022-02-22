@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document, Types, SchemaTypes } from 'mongoose';
 
 export type CustomerBankAccountDocument = CustomerBankAccount & Document;
 
@@ -7,7 +7,7 @@ export type CustomerBankAccountDocument = CustomerBankAccount & Document;
 export class CustomerBankAccount {
   _id: string;
 
-  @Prop()
+  @Prop({ type: SchemaTypes.ObjectId })
   customerId: Types.ObjectId;
 
   @Prop()
@@ -21,3 +21,7 @@ export class CustomerBankAccount {
 }
 
 export const CustomerBankAccountSchema = SchemaFactory.createForClass(CustomerBankAccount);
+
+CustomerBankAccountSchema.pre<CustomerBankAccountDocument>('save', function () {
+  this.clabe = this.clabe.replace(/.(?=.{4})/g, 'X');
+});

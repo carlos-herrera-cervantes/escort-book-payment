@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document, Types, SchemaTypes } from 'mongoose';
 
 export type CardDocument = Card & Document;
 
@@ -7,7 +7,7 @@ export type CardDocument = Card & Document;
 export class Card {
   _id: string;
 
-  @Prop()
+  @Prop({ type: SchemaTypes.ObjectId })
   customerId: Types.ObjectId;
 
   @Prop()
@@ -16,7 +16,7 @@ export class Card {
   @Prop()
   numbers: string;
 
-  @Prop({ default: true })
+  @Prop({ default: false })
   default: boolean;
 
   @Prop({ default: true })
@@ -33,3 +33,7 @@ export class Card {
 }
 
 export const CardSchema = SchemaFactory.createForClass(Card);
+
+CardSchema.pre<CardDocument>('save', function () {
+  this.numbers = this.numbers.replace(/.(?=.{4})/g, 'X');
+});

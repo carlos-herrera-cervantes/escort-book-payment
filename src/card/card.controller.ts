@@ -1,4 +1,16 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Inject, Param, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Inject,
+  NotFoundException,
+  Param,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { CardService } from './card.service';
 import { CreateCardDTO } from './dto/create.dto';
 import { Card } from './schemas/card.schema';
@@ -12,13 +24,20 @@ export class CardController {
   @Get()
   async getAll(@Req() req: any): Promise<Card[]> {
     const customerId: string = req?.user?.customerId;
-    return this.cardService.getAll({ customerId });
+    return this.cardService.getAll({ customerId: new Types.ObjectId(customerId) });
   }
 
   @Get(':id')
-  async getOne(@Req() req: any): Promise<Card> {
+  async getOne(@Req() req: any, @Param('id') id: string): Promise<Card> {
     const customerId: string = req?.user?.customerId;
-    return this.cardService.getOne({ customerId });
+    const card: Card = await this.cardService.getOne({
+      customerId: new Types.ObjectId(customerId),
+      _id: new Types.ObjectId(id),
+    });
+
+    if (!card) throw new NotFoundException();
+
+    return card;
   }
 
   @Post()
@@ -28,6 +47,8 @@ export class CardController {
 
     newCard.token = 'dummy';
     newCard.customerId = new Types.ObjectId(customerId);
+    newCard.numbers = card.numbers;
+    newCard.alias = card.alias;
 
     return this.cardService.create(newCard);
   }
@@ -36,6 +57,13 @@ export class CardController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteOne(@Req() req: any, @Param('id') id: string): Promise<void> {
     const customerId: string = req?.user?.customerId;
-    return this.cardService.deleteOne({ customerId, _id: id });
+    const card: Card = await this.cardService.getOne({
+      customerId: new Types.ObjectId(customerId),
+      _id: new Types.ObjectId(id),
+    });
+
+    if (!card) throw new NotFoundException();
+
+    await this.cardService.deleteOne({ _id: new Types.ObjectId(id) });
   }
 }
