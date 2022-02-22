@@ -11,13 +11,13 @@ export class ServiceController {
 
   @Get()
   async getByPagination(@Query() paginate: PaginateDTO, @Req() req: any): Promise<Service[]> {
-    const customerId: string = req?.user?.customerId ?? '6213295f07ef497a5a9479cd';
+    const customerId: string = req?.user?.customerId;
     return this.serviceService.getByPagination(paginate, { customerId });
   }
 
   @Get(':id')
   async getById(@Param('id') id: string, @Req() req: any): Promise<Service> {
-    const customerId: string = req?.user?.customerId ?? '6213295f07ef497a5a9479cd';
+    const customerId: string = req?.user?.customerId;
     const service: Service = await this.serviceService.getOne({ customerId, _id: id });
 
     if (!service) throw new NotFoundException();
@@ -27,7 +27,7 @@ export class ServiceController {
 
   @Post()
   async create(@Body() service: CreateServiceDTO, @Req() req: any): Promise<Service> {
-    const customerId: string = req?.user?.customerId ?? '6213295f07ef497a5a9479cd';
+    const customerId: string = req?.user?.customerId;
     service.customerId = customerId;
 
     return this.serviceService.create(service);

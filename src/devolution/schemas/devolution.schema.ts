@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document, Types, SchemaTypes } from 'mongoose';
 
 export type DevolutionDocument = Devolution & Document;
 
@@ -7,13 +7,13 @@ export type DevolutionDocument = Devolution & Document;
 export class Devolution {
   _id: string;
 
-  @Prop()
+  @Prop({ type: SchemaTypes.ObjectId })
   customerId: Types.ObjectId;
 
-  @Prop()
+  @Prop({ type: SchemaTypes.ObjectId })
   escortId: Types.ObjectId;
 
-  @Prop()
+  @Prop({ type: SchemaTypes.ObjectId })
   serviceId: Types.ObjectId;
 
   @Prop()

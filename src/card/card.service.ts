@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { Card, CardDocument } from './schemas/card.schema';
 import { Model, FilterQuery } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { CreateCardDTO } from './dto/create.dto';
+import { MAXIMUM_CARDS } from './constants/card.constant';
 
 @Injectable()
 export class CardService {
@@ -18,6 +18,10 @@ export class CardService {
   }
 
   async create(card: Card): Promise<Card> {
+    const totalCards: number = await this.cardModel.count({ customerId: card.customerId });
+
+    if (totalCards >= MAXIMUM_CARDS) throw new ConflictException();
+
     return this.cardModel.create(card);
   }
 
