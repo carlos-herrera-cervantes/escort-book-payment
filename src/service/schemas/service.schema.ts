@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types, SchemaTypes } from 'mongoose';
+import { Document, Types, Schema as MongooseSchema } from 'mongoose';
+import { Card } from '../../card/schemas/card.schema';
 
 export type ServiceDocument = Service & Document;
 
@@ -7,13 +8,13 @@ export type ServiceDocument = Service & Document;
 export class Service {
   _id: string;
 
-  @Prop({ type: SchemaTypes.ObjectId })
-  cardId: Types.ObjectId;
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Card' })
+  cardId: Card | Types.ObjectId;
 
-  @Prop({ type: SchemaTypes.ObjectId })
+  @Prop({ type: MongooseSchema.Types.ObjectId })
   customerId: Types.ObjectId;
 
-  @Prop({ type: SchemaTypes.ObjectId })
+  @Prop({ type: MongooseSchema.Types.ObjectId })
   escortId: Types.ObjectId;
 
   @Prop()
@@ -32,7 +33,7 @@ export class Service {
   createdAt: Date;
 
   @Prop({ default: new Date().toUTCString() })
-  updateAt: Date;
+  updatedAt: Date;
 }
 
 export const ServiceSchema = SchemaFactory.createForClass(Service);

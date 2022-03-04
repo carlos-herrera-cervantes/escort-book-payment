@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types, SchemaTypes } from 'mongoose';
+import { Document, Types, Schema as MongooseSchema } from 'mongoose';
 
 export type PaymentDocument = Payment & Document;
 
@@ -7,13 +7,13 @@ export type PaymentDocument = Payment & Document;
 export class Payment {
   _id: string;
 
-  @Prop({ type: SchemaTypes.ObjectId })
+  @Prop({ type: MongooseSchema.Types.ObjectId })
   escortId: Types.ObjectId;
 
-  @Prop({ type: SchemaTypes.ObjectId })
+  @Prop({ type: MongooseSchema.Types.ObjectId })
   customerId: Types.ObjectId;
 
-  @Prop({ type: SchemaTypes.ObjectId })
+  @Prop({ type: MongooseSchema.Types.ObjectId })
   serviceId: Types.ObjectId;
 
   @Prop()

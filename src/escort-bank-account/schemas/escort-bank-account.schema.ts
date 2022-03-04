@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types, SchemaTypes } from 'mongoose';
+import { Document, Types, Schema as MongooseSchema } from 'mongoose';
 
 export type EscortBankAccountDocument = EscortBankAccount & Document;
 
@@ -7,7 +7,7 @@ export type EscortBankAccountDocument = EscortBankAccount & Document;
 export class EscortBankAccount {
   _id: string;
 
-  @Prop({ type: SchemaTypes.ObjectId })
+  @Prop({ type: MongooseSchema.Types.ObjectId })
   escortId: Types.ObjectId;
 
   @Prop()

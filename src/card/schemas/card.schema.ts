@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types, SchemaTypes } from 'mongoose';
+import { Document, Types, Schema as MongooseSchema } from 'mongoose';
 
 export type CardDocument = Card & Document;
 
@@ -7,7 +7,7 @@ export type CardDocument = Card & Document;
 export class Card {
   _id: string;
 
-  @Prop({ type: SchemaTypes.ObjectId })
+  @Prop({ type: MongooseSchema.Types.ObjectId })
   customerId: Types.ObjectId;
 
   @Prop()

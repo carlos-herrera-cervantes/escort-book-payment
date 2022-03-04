@@ -14,13 +14,39 @@ export class ServiceService {
     return this.serviceModel.find(filter).lean();
   }
 
-  async getByPagination(paginate: PaginateDTO, filter?: FilterQuery<Service>): Promise<Service[]> {
+  async getByPagination(
+    paginate: PaginateDTO,
+    filter?: FilterQuery<Service>,
+  ): Promise<Service[]> {
     const { offset, limit } = paginate;
-    return this.serviceModel.find(filter).skip(offset * limit).limit(limit);
+    return this.serviceModel
+      .find(filter)
+      .skip(offset * limit)
+      .limit(limit);
+  }
+
+  async getByPaginationAndPopulate(
+    paginate: PaginateDTO,
+    populateFilter: any,
+    filter?: FilterQuery<Service>,
+  ): Promise<Service[]> {
+    const { offset, limit } = paginate;
+    return this.serviceModel
+      .find(filter)
+      .populate(populateFilter)
+      .skip(offset * limit)
+      .limit(limit);
   }
 
   async getOne(filter: FilterQuery<Service>): Promise<Service> {
     return this.serviceModel.findOne(filter).lean();
+  }
+
+  async getOneAndPopulate(
+    filter: FilterQuery<Service>,
+    populateFilter: any
+  ): Promise<Service> {
+    return this.serviceModel.findOne(filter).populate(populateFilter).lean();
   }
 
   async create(service: CreateServiceDTO): Promise<Service> {
