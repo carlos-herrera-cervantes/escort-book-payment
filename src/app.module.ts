@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CardModule } from './card/card.module';
 import { CustomerBankAccountModule } from './customer-bank-account/customer-bank-account.module';
@@ -7,10 +8,15 @@ import { DevolutionModule } from './devolution/devolution.module';
 import { EscortBankAccountModule } from './escort-bank-account/escort-bank-account.module';
 import { PaymentModule } from './payment/payment.module';
 import { ServiceModule } from './service/service.module';
+import { TypeOrmConfigService } from './config/type-orm-config.service';
+import { EscortProfileModule } from './escort-profile/escort-profile.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    TypeOrmModule.forRootAsync({
+      useClass: TypeOrmConfigService,
+    }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -24,6 +30,7 @@ import { ServiceModule } from './service/service.module';
     EscortBankAccountModule,
     DevolutionModule,
     PaymentModule,
+    EscortProfileModule,
   ],
   controllers: [],
   providers: [],
