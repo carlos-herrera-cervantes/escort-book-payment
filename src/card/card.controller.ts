@@ -23,13 +23,13 @@ export class CardController {
 
   @Get()
   async getAll(@Req() req: any): Promise<Card[]> {
-    const customerId: string = req?.user?.customerId;
+    const customerId: string = req?.body?.user?.id;
     return this.cardService.getAll({ customerId: new Types.ObjectId(customerId) });
   }
 
   @Get(':id')
   async getOne(@Req() req: any, @Param('id') id: string): Promise<Card> {
-    const customerId: string = req?.user?.customerId;
+    const customerId: string = req?.body?.user?.id;
     const card: Card = await this.cardService.getOne({
       customerId: new Types.ObjectId(customerId),
       _id: new Types.ObjectId(id),
@@ -42,7 +42,7 @@ export class CardController {
 
   @Post()
   async create(@Req() req: any, @Body() card: CreateCardDTO): Promise<Card> {
-    const customerId: string = req?.user?.customerId;
+    const customerId: string = req?.body?.user?.id;
     const newCard = new Card();
 
     newCard.token = 'dummy';
@@ -56,7 +56,7 @@ export class CardController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteOne(@Req() req: any, @Param('id') id: string): Promise<void> {
-    const customerId: string = req?.user?.customerId;
+    const customerId: string = req?.body?.user?.id;
     const card: Card = await this.cardService.getOne({
       customerId: new Types.ObjectId(customerId),
       _id: new Types.ObjectId(id),

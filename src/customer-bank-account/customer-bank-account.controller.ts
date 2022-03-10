@@ -12,7 +12,7 @@ export class CustomerBankAccountController {
 
   @Post()
   async create(@Req() req: any, @Body() account: CreateCustomerBankAccountDTO): Promise<CustomerBankAccount> {
-    const customerId: string = req?.user?.customerId;
+    const customerId: string = req?.body?.user?.id;
     account.customerId = customerId;
     
     return this.customerBankAccountService.create(account);
@@ -24,7 +24,7 @@ export class CustomerBankAccountController {
     @Param('id') id: string,
     @Body() newAccount: UpdateCustomerBankAccountDTO,
   ): Promise<CustomerBankAccount> {
-    const customerId: string = req?.user?.customerId;
+    const customerId: string = req?.body?.user?.id;
     const account: CustomerBankAccount = await this.customerBankAccountService.getOne({
       _id: new Types.ObjectId(id),
       customerId: new Types.ObjectId(customerId),

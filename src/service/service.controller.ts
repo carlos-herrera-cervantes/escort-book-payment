@@ -6,6 +6,7 @@ import { ListServiceDTO, ServiceDTO } from './dto/list.dto';
 import { Service } from './schemas/service.schema';
 import { ServiceService } from './service.service';
 import { Card } from '../card/schemas/card.schema';
+import { Types } from 'mongoose';
 
 @Controller('/api/v1/payments/services')
 export class ServiceController {
@@ -17,8 +18,9 @@ export class ServiceController {
 
   @Get()
   async getByPagination(@Query() paginate: PaginateDTO, @Req() req: any): Promise<ListServiceDTO[]> {
-    const customerId: string = req?.user?.customerId;
-    const services = await this.serviceService.getByPagination(paginate, { customerId });
+    const customerId: string = req?.body?.user?.id;
+    const services = await this.serviceService
+      .getByPagination(paginate, { customerId: new Types.ObjectId(customerId) });
     const listServiceDTO = [];
 
     for (const service of services) {
@@ -39,7 +41,7 @@ export class ServiceController {
 
   @Get(':id')
   async getById(@Param('id') id: string, @Req() req: any): Promise<ServiceDTO> {
-    const customerId: string = req?.user?.customerId;
+    const customerId: string = req?.body?.user?.id;
     const service: Service = await this.serviceService
       .getOneAndPopulate({ customerId, _id: id }, { path: 'cardId', select: 'numbers' });
 
@@ -66,7 +68,7 @@ export class ServiceController {
 
   @Post()
   async create(@Body() service: CreateServiceDTO, @Req() req: any): Promise<Service> {
-    const customerId: string = req?.user?.customerId;
+    const customerId: string = req?.body?.user?.id;
     service.customerId = customerId;
 
     return this.serviceService.create(service);
