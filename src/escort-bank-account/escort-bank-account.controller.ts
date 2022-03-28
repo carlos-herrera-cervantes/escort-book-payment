@@ -11,11 +11,11 @@ export class EscortBankAccountController {
   private readonly escortBankAccountService: EscortBankAccountService;
 
   @Post()
-  async create(@Req() req: any, @Body() account: CreateEscortBankAccountDTO): Promise<void> {
+  async create(@Req() req: any, @Body() account: CreateEscortBankAccountDTO): Promise<EscortBankAccount> {
     const escortId: string = req?.body?.user?.id;
     account.escortId = escortId;
     
-    await this.escortBankAccountService.create(account);
+    return this.escortBankAccountService.create(account);
   }
 
   @Patch(':id')
