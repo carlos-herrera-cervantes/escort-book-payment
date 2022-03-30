@@ -10,9 +10,12 @@ import { PaymentModule } from './payment/payment.module';
 import { ServiceModule } from './service/service.module';
 import { TypeOrmConfigService } from './config/type-orm-config.service';
 import { EscortProfileModule } from './escort-profile/escort-profile.module';
+import { PriceModule } from './price/price.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       useClass: TypeOrmConfigService,
@@ -31,6 +34,7 @@ import { EscortProfileModule } from './escort-profile/escort-profile.module';
     DevolutionModule,
     PaymentModule,
     EscortProfileModule,
+    PriceModule,
   ],
   controllers: [],
   providers: [],

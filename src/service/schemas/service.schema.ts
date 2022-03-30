@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types, Schema as MongooseSchema } from 'mongoose';
 import { Card } from '../../card/schemas/card.schema';
+import { CreateServiceDTO } from '../dto/create.dto';
+import { ServiceStatus } from '../enums/status.enum';
 
 export type ServiceDocument = Service & Document;
 
@@ -20,7 +22,7 @@ export class Service {
   @Prop()
   price: number;
 
-  @Prop()
+  @Prop({ default: ServiceStatus.Boarding })
   status: string;
 
   @Prop()

@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { count } from 'console';
 import { Model, FilterQuery } from 'mongoose';
 import { PaginateDTO } from '../common/query-param.dto';
-import { CreateServiceDTO } from './dto/create.dto';
+import { UpdateServiceDTO } from './dto/update.dto';
 import { Service, ServiceDocument } from './schemas/service.schema';
 
 @Injectable()
@@ -49,7 +50,24 @@ export class ServiceService {
     return this.serviceModel.findOne(filter).populate(populateFilter).lean();
   }
 
-  async create(service: CreateServiceDTO): Promise<Service> {
+  async create(service: Service): Promise<Service> {
     return this.serviceModel.create(service);
+  }
+
+  async updateOne(
+    service: UpdateServiceDTO,
+    filter: FilterQuery<Service>,
+  ): Promise<Service> {
+    const doc = await this.serviceModel.findOneAndUpdate(
+      filter,
+      { $set: service },
+      { new: true },
+    );
+    
+    return doc;
+  }
+
+  async count(filter?: FilterQuery<Service>): Promise<number> {
+    return this.serviceModel.countDocuments(filter);
   }
 }
