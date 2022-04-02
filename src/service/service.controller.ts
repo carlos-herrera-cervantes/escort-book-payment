@@ -1,12 +1,32 @@
-import { Body, Controller, Get, Inject, Param, Query, Req, Post, NotFoundException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Query,
+  Req,
+  Post,
+  NotFoundException,
+  Patch,
+  ConflictException,
+  UseGuards,
+} from '@nestjs/common';
 import { EscortProfileService } from '../escort-profile/escort-profile.service';
 import { PaginateDTO } from '../common/query-param.dto';
-import { CreateServiceDTO } from './dto/create.dto';
-import { ListServiceDTO, ServiceDTO } from './dto/list.dto';
+import { ServiceDTO } from './dto/list.dto';
 import { Service } from './schemas/service.schema';
 import { ServiceService } from './service.service';
-import { Card } from '../card/schemas/card.schema';
 import { Types } from 'mongoose';
+import { UpdateServiceDTO } from './dto/update.dto';
+import { CreateServiceDTO } from './dto/create.dto';
+import { PriceService } from 'src/price/price.service';
+import { Pager } from '../common/pager';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ServiceStatus } from './enums/status.enum';
+import { StatusGuard } from './guards/status.guard';
+import './extensions/array.extension';
+import './extensions/service.extension';
 
 @Controller('/api/v1/payments/services')
 export class ServiceController {
@@ -14,63 +34,75 @@ export class ServiceController {
   private readonly serviceService: ServiceService;
 
   @Inject(EscortProfileService)
-  private readonly escortProfileService: EscortProfileService
+  private readonly escortProfileService: EscortProfileService;
+
+  @Inject(PriceService)
+  private readonly priceService: PriceService;
+
+  @Inject(EventEmitter2)
+  private readonly eventEmitter: EventEmitter2;
 
   @Get()
-  async getByPagination(@Query() paginate: PaginateDTO, @Req() req: any): Promise<ListServiceDTO[]> {
-    const customerId: string = req?.body?.user?.id;
-    const services = await this.serviceService
-      .getByPagination(paginate, { customerId: new Types.ObjectId(customerId) });
-    const listServiceDTO = [];
+  async getByPagination(@Query() paginate: PaginateDTO, @Req() req: any): Promise<Pager> {
+    const user = req?.body?.user;
+    const filter = user?.type == 'Customer' ?
+      { customerId: new Types.ObjectId(user.id) } :
+      { escortId: new Types.ObjectId(user.id) };
 
-    for (const service of services) {
-      const escortProfile = await this.escortProfileService
-        .findOne({ where: { escortId: service.escortId.toString() } });
-      const innerListServiceDTO = new ListServiceDTO();
-
-      innerListServiceDTO._id = service._id;
-      innerListServiceDTO.escort = `${escortProfile.firstName} ${escortProfile.lastName}`;
-      innerListServiceDTO.createdAt = service.createdAt;
-      innerListServiceDTO.updatedAt = service.updatedAt;
-
-      listServiceDTO.push(innerListServiceDTO);
-    }
-
-    return listServiceDTO;
+    const [services, totalDocs] = await Promise.all([
+      this.serviceService.getByPagination(paginate, filter),
+      this.serviceService.count({ filter }),
+    ]);
+    
+    return new Pager()
+      .getPager(paginate, totalDocs, await services.setEscortProfile(this.escortProfileService));
   }
 
   @Get(':id')
   async getById(@Param('id') id: string, @Req() req: any): Promise<ServiceDTO> {
-    const customerId: string = req?.body?.user?.id;
-    const service: Service = await this.serviceService
+    const customerId = req?.body?.user?.id;
+    const service = await this.serviceService
       .getOneAndPopulate({ customerId, _id: id }, { path: 'cardId', select: 'numbers' });
 
     if (!service) throw new NotFoundException();
 
     const escortProfile = await this.escortProfileService
       .findOne({ where: { escortId: service.escortId.toString() } });
-
-    const card = service.cardId as Card;
-
-    const serviceDetail = new ServiceDTO();
-    serviceDetail._id = service._id;
-    serviceDetail.card = card.numbers;
-    serviceDetail.escort = `${escortProfile.firstName} ${escortProfile.lastName}`;
-    serviceDetail.status = service.status;
-    serviceDetail.price = service.price;
-    serviceDetail.timeQuantity = service.timeQuantity;
-    serviceDetail.timeMeasurementUnit = service.timeMeasurementUnit;
-    serviceDetail.createdAt = service.createdAt;
-    serviceDetail.updatedAt = service.updatedAt;
+    const serviceDetail = new ServiceDTO().toServiceDetail(escortProfile, service);
 
     return serviceDetail;
   }
 
   @Post()
-  async create(@Body() service: CreateServiceDTO, @Req() req: any): Promise<Service> {
-    const customerId: string = req?.body?.user?.id;
-    service.customerId = customerId;
+  async create(@Body() createServiceDTO: CreateServiceDTO, @Req() req: any): Promise<Service> {
+    const customerId = req?.body?.user?.id;
+    createServiceDTO.customerId = customerId;
 
-    return this.serviceService.create(service);
+    const newService = await new Service().toService(createServiceDTO, this.priceService);
+    return this.serviceService.create(newService);
+  }
+
+  @Patch(':id')
+  @UseGuards(StatusGuard)
+  async updateOne(
+    @Body() service: UpdateServiceDTO,
+    @Req() req: any,
+    @Param('id') id: string,
+  ): Promise<Service> {
+    const user = req?.body?.user;
+    const filter = user?.type == 'Customer' ?
+      { customerId: user?.id, _id: id } :
+      { escortId: user?.id, _id: id };
+
+    const exists = await this.serviceService.getOne(filter);
+
+    if (!exists) throw new NotFoundException();
+
+    if (exists.status != ServiceStatus.Boarding) throw new ConflictException();
+
+    const updatedService = await this.serviceService.updateOne(service, filter);
+    this.eventEmitter.emit('service.paid', exists);
+
+    return updatedService
   }
 }
