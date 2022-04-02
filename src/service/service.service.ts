@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { count } from 'console';
 import { Model, FilterQuery } from 'mongoose';
 import { PaginateDTO } from '../common/query-param.dto';
 import { UpdateServiceDTO } from './dto/update.dto';

@@ -6,6 +6,7 @@ export class ServiceDTO {
   _id: string;
   card: string;
   escort: string;
+  escortId: string;
   status: string;
   price: number;
   timeQuantity: number;
@@ -19,6 +20,7 @@ export class ServiceDTO {
     this._id = service._id;
     this.card = card.numbers;
     this.escort = `${escortProfile.firstName} ${escortProfile.lastName}`;
+    this.escortId = escortProfile.escortId;
     this.status = service.status;
     this.price = service.price;
     this.timeQuantity = service.timeQuantity;
