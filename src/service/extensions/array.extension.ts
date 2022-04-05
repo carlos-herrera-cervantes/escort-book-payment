@@ -21,6 +21,8 @@ Array.prototype.setEscortProfile = async function (
 
     innerListServiceDTO._id = service._id;
     innerListServiceDTO.escort = `${escortProfile.firstName} ${escortProfile.lastName}`;
+    innerListServiceDTO.cost = service.price;
+    innerListServiceDTO.status = service.status;
     innerListServiceDTO.createdAt = service.createdAt;
     innerListServiceDTO.updatedAt = service.updatedAt;
 
