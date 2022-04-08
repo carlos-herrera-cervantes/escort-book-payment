@@ -4,11 +4,16 @@ import { Model, FilterQuery } from 'mongoose';
 import { PaginateDTO } from '../common/query-param.dto';
 import { UpdateServiceDTO } from './dto/update.dto';
 import { Service, ServiceDocument } from './schemas/service.schema';
+import { ServiceDetail, ServiceDetailDocument } from './schemas/service-detail.schema';
+import { CreateServiceDetailDTO } from './dto/create.dto';
 
 @Injectable()
 export class ServiceService {
   @InjectModel(Service.name)
   private readonly serviceModel: Model<ServiceDocument>;
+
+  @InjectModel(ServiceDetail.name)
+  private readonly serviceDetailModel: Model<ServiceDetailDocument>;
 
   async getAll(filter?: FilterQuery<Service>): Promise<Service[]> {
     return this.serviceModel.find(filter).lean();
@@ -51,6 +56,10 @@ export class ServiceService {
 
   async create(service: Service): Promise<Service> {
     return this.serviceModel.create(service);
+  }
+
+  async createBatchDetail(details: CreateServiceDetailDTO[]): Promise<any> {
+    return this.serviceDetailModel.insertMany(details);
   }
 
   async updateOne(
