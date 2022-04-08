@@ -5,10 +5,14 @@ import { EscortProfileModule } from '../escort-profile/escort-profile.module';
 import { Service, ServiceSchema } from './schemas/service.schema';
 import { ServiceController } from './service.controller';
 import { ServiceService } from './service.service';
+import { ServiceDetail, ServiceDetailSchema } from './schemas/service-detail.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Service.name, schema: ServiceSchema }]),
+    MongooseModule.forFeature([
+      { name: Service.name, schema: ServiceSchema },
+      { name: ServiceDetail.name, schema: ServiceDetailSchema },
+    ]),
     EscortProfileModule,
     PriceModule,
   ],

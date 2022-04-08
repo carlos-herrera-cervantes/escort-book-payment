@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { TimeUnit } from '../enums/time-unit.enum';
 
 export class CreateServiceDTO {
@@ -25,4 +25,22 @@ export class CreateServiceDTO {
   @IsNotEmpty()
   @IsEnum(TimeUnit)
   timeMeasurementUnit: TimeUnit;
+
+  @IsOptional()
+  @IsArray()
+  details: CreateServiceDetailDTO[] = [];
+}
+
+export class CreateServiceDetailDTO {
+  @IsNotEmpty()
+  @IsString()
+  serviceId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  serviceName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  cost: number;
 }

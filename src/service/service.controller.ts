@@ -62,23 +62,19 @@ export class ServiceController {
   async getById(@Param('id') id: string, @Req() req: any): Promise<ServiceDTO> {
     const customerId = req?.body?.user?.id;
     const service = await this.serviceService
-      .getOneAndPopulate({ customerId, _id: id }, { path: 'cardId', select: 'numbers' });
+      .getOneAndPopulate({ customerId, _id: id }, { path: 'cardId details' });
 
     if (!service) throw new NotFoundException();
 
     const escortProfile = await this.escortProfileService
       .findOne({ where: { escortId: service.escortId.toString() } });
-    const serviceDetail = new ServiceDTO().toServiceDetail(escortProfile, service);
-
-    return serviceDetail;
+    return new ServiceDTO().toServiceDetail(escortProfile, service);
   }
 
   @Post()
   async create(@Body() createServiceDTO: CreateServiceDTO, @Req() req: any): Promise<Service> {
-    const customerId = req?.body?.user?.id;
-    createServiceDTO.customerId = customerId;
-
-    const newService = await new Service().toService(createServiceDTO, this.priceService);
+    createServiceDTO.customerId = req?.body?.user?.id;
+    const newService = await new Service().toService(createServiceDTO, this.priceService, this.serviceService);
     return this.serviceService.create(newService);
   }
 
