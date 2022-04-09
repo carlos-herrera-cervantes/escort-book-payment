@@ -3,4 +3,5 @@ export enum ServiceStatus {
   Reclaimed = 'reclaimed',
   Returned = 'returned',
   Boarding = 'boarding',
+  Started = 'started',
 }

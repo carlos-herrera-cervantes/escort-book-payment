@@ -9,8 +9,8 @@ import {
   Post,
   NotFoundException,
   Patch,
-  ConflictException,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { EscortProfileService } from '../escort-profile/escort-profile.service';
 import { PaginateDTO } from '../common/query-param.dto';
@@ -68,13 +68,16 @@ export class ServiceController {
 
     const escortProfile = await this.escortProfileService
       .findOne({ where: { escortId: service.escortId.toString() } });
+
     return new ServiceDTO().toServiceDetail(escortProfile, service);
   }
 
   @Post()
   async create(@Body() createServiceDTO: CreateServiceDTO, @Req() req: any): Promise<Service> {
     createServiceDTO.customerId = req?.body?.user?.id;
-    const newService = await new Service().toService(createServiceDTO, this.priceService, this.serviceService);
+    const newService = await new Service()
+      .toService(createServiceDTO, this.priceService, this.serviceService);
+
     return this.serviceService.create(newService);
   }
 
@@ -94,11 +97,18 @@ export class ServiceController {
 
     if (!exists) throw new NotFoundException();
 
-    if (exists.status != ServiceStatus.Boarding) throw new ConflictException();
+    const validStatus: string[] = [ServiceStatus.Boarding, ServiceStatus.Started];
+
+    if (!validStatus.includes(exists.status)) {
+      throw new BadRequestException();
+    }
 
     const updatedService = await this.serviceService.updateOne(service, filter);
-    this.eventEmitter.emit('service.paid', exists);
 
-    return updatedService
+    if (service.status == ServiceStatus.Completed) {
+      this.eventEmitter.emit('service.paid', exists);
+    }
+
+    return updatedService;
   }
 }
