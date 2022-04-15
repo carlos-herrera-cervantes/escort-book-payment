@@ -77,8 +77,11 @@ export class ServiceController {
     createServiceDTO.customerId = req?.body?.user?.id;
     const newService = await new Service()
       .toService(createServiceDTO, this.priceService, this.serviceService);
+    const created = await this.serviceService.create(newService);
 
-    return this.serviceService.create(newService);
+    this.eventEmitter.emit('service.created', created._id);
+
+    return created;
   }
 
   @Patch(':id')
