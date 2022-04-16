@@ -77,11 +77,7 @@ export class ServiceController {
     createServiceDTO.customerId = req?.body?.user?.id;
     const newService = await new Service()
       .toService(createServiceDTO, this.priceService, this.serviceService);
-    const created = await this.serviceService.create(newService);
-
-    this.eventEmitter.emit('service.created', created._id);
-
-    return created;
+    return this.serviceService.create(newService);
   }
 
   @Patch(':id')
@@ -107,6 +103,10 @@ export class ServiceController {
     }
 
     const updatedService = await this.serviceService.updateOne(service, filter);
+
+    if (service.status == ServiceStatus.Started) {
+      this.eventEmitter.emit('service.started', exists);
+    }
 
     if (service.status == ServiceStatus.Completed) {
       this.eventEmitter.emit('service.paid', exists);

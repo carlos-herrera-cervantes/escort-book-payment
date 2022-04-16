@@ -8,7 +8,7 @@ import { ServiceService } from './service.service';
 import { ServiceDetail, ServiceDetailSchema } from './schemas/service-detail.schema';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ServiceCreatedListener } from './listeners/service-created.listener';
+import { ServiceStartedListener } from './listeners/service-started.listener';
 
 @Module({
   imports: [
@@ -35,7 +35,7 @@ import { ServiceCreatedListener } from './listeners/service-created.listener';
     EscortProfileModule,
     PriceModule,
   ],
-  providers: [ServiceService, ServiceCreatedListener],
+  providers: [ServiceService, ServiceStartedListener],
   controllers: [ServiceController],
   exports: [],
 })
