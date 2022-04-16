@@ -2,10 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ClientKafka } from '@nestjs/microservices';
-import '../extensions/string.extension';
+import { Service } from '../schemas/service.schema';
+import '../extensions/date.extension'
 
 @Injectable()
-export class ServiceCreatedListener {
+export class ServiceStartedListener {
 
   @Inject('EscortBookPayment')
   private readonly client: ClientKafka;
@@ -13,22 +14,26 @@ export class ServiceCreatedListener {
   @Inject(ConfigService)
   private readonly configService: ConfigService;
 
-  @OnEvent('service.created', { async: true })
-  async handleServiceCreated(serviceId: string): Promise<void> {
+  @OnEvent('service.started', { async: true })
+  async handleServiceCreated(service: Service): Promise<void> {
+    const { _id, timeQuantity, timeMeasurementUnit } = service;
+
     const now = new Date();
-    const escortThreshold = new Date(now);
+    const escortThreshold = new Date(now)
+      .addServiceTime(timeQuantity, timeMeasurementUnit, now);
     const customerThreshold = new Date(now)
-    
-    escortThreshold.setMinutes(now.getMinutes() + 60)
-    customerThreshold.setMinutes(now.getMinutes() + 55);
+      .addServiceTime(timeQuantity, timeMeasurementUnit, now);
+
+    escortThreshold.setHours(escortThreshold.getHours() + 1);
+    customerThreshold.setMinutes(customerThreshold.getMinutes() + 50);
 
     const customerMessage = {
-      serviceId,
+      serviceId: _id,
       userType: 'Customer',
       scheduleExpression: customerThreshold.toCronExpression(),
     };
     const escortMessage = {
-      serviceId,
+      serviceId: _id,
       userType: 'Escort',
       scheduleExpression: escortThreshold.toCronExpression(),
     };
