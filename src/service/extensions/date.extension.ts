@@ -31,7 +31,7 @@ Date.prototype.toCronExpression = function (): string {
   const self = this as Date;
   
   const minutes = self.getMinutes();
-  const hours = self.getHours();
+  const hours = self.getUTCHours();
 
   return `cron(${minutes} ${hours} * * ? *)`;
 }
