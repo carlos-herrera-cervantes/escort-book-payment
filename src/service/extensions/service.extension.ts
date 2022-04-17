@@ -3,6 +3,8 @@ import { Service } from '../schemas/service.schema';
 import { Types } from 'mongoose';
 import { PriceService } from '../../price/price.service';
 import { ServiceService } from '../service.service';
+import { TimeUnit } from '../enums/time-unit.enum';
+import { BadRequestException } from '@nestjs/common';
 
 export {};
 
@@ -21,29 +23,42 @@ Service.prototype.toService = async function (
   priceRepository: PriceService,
   serviceRepository: ServiceService,
 ): Promise<Service> {
+    const {
+      priceId,
+      cardId,
+      customerId,
+      escortId,
+      timeQuantity,
+      timeMeasurementUnit,
+      details,
+    } = createServiceDTO;
+
     const self = this as Service;
-    const price = await priceRepository.findOne({ where: { id: createServiceDTO.priceId } });
+    const price = await priceRepository.findOne({ where: { id: priceId } });
 
-    self.cardId = new Types.ObjectId(createServiceDTO.cardId);
-    self.customerId = new Types.ObjectId(createServiceDTO.customerId);
-    self.escortId = new Types.ObjectId(createServiceDTO.escortId);
-    self.timeQuantity = createServiceDTO.timeQuantity;
-    self.timeMeasurementUnit = createServiceDTO.timeMeasurementUnit;
+    if (timeQuantity < price.quantity) throw new BadRequestException();
 
-    if (createServiceDTO.details) {
-      var totalDetail = createServiceDTO.details.reduce((partialSum, value) => partialSum + value.cost, 0);
+    self.cardId = new Types.ObjectId(cardId);
+    self.customerId = new Types.ObjectId(customerId);
+    self.escortId = new Types.ObjectId(escortId);
+    self.timeQuantity = timeQuantity;
+    self.timeMeasurementUnit = timeMeasurementUnit;
+
+    if (details) {
+      var totalDetail = details.reduce((partialSum, value) => partialSum + value.cost, 0);
       
       createServiceDTO.details.push({
-        serviceId: createServiceDTO.priceId,
+        serviceId: priceId,
         serviceName: 'Time',
         cost: price.cost,
       });
       
-      const bulkResult = await serviceRepository.createBatchDetail(createServiceDTO.details);
+      const bulkResult = await serviceRepository.createBatchDetail(details);
       self.details = bulkResult.map(result => result._id);
     }
 
-    self.price = (createServiceDTO.timeQuantity * price.cost) + totalDetail;
+    self.price = timeMeasurementUnit == TimeUnit.Minutes ? price.cost + totalDetail :
+      (timeQuantity * price.cost) + totalDetail;
 
     return self;
 }
