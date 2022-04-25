@@ -4,7 +4,7 @@ import { Types } from 'mongoose';
 import { PriceService } from '../../price/price.service';
 import { ServiceService } from '../service.service';
 import { TimeUnit } from '../enums/time-unit.enum';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 export {};
 
@@ -35,6 +35,8 @@ Service.prototype.toService = async function (
 
     const self = this as Service;
     const price = await priceRepository.findOne({ where: { id: priceId } });
+
+    if (!price) throw new NotFoundException();
 
     if (timeQuantity < price.quantity) throw new BadRequestException();
 
