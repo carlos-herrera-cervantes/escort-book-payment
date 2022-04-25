@@ -28,4 +28,8 @@ export class CardService {
   async deleteOne(filter?: FilterQuery<Card>): Promise<void> {
     return this.cardModel.findOneAndDelete(filter);
   }
+
+  async count(filter?: FilterQuery<Card>): Promise<number> {
+    return this.cardModel.count(filter);
+  }
 }

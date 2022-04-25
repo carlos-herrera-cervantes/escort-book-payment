@@ -11,4 +11,8 @@ export class EscortProfileService {
   async findOne(filter: FindOneOptions<EscortProfile>): Promise<EscortProfile> {
     return this.escortProfileRepository.findOne(filter);
   }
+
+  async count(filter?: FindOneOptions<EscortProfile>): Promise<number> {
+    return this.escortProfileRepository.count(filter);
+  }
 }

@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 import { EscortProfile } from '../escort-profile/entities/escort-profile.entity';
 import { Price } from '../price/entities/price.entity';
+import { PriceDetail } from '../price/entities/price-detail.entity';
 
 @Injectable()
 export class TypeOrmConfigService implements TypeOrmOptionsFactory {
@@ -17,7 +18,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       username: this.configService.get<string>('ESCORT_PROFILE_USER'),
       password: this.configService.get<string>('ESCORT_PROFILE_PASS'),
       database: this.configService.get<string>('ESCORT_PROFILE_DB'),
-      entities: [EscortProfile, Price],
+      entities: [EscortProfile, Price, PriceDetail],
       synchronize: false,
     }
   }

@@ -10,6 +10,6 @@ import { Card, CardSchema } from './schemas/card.schema';
   ],
   providers: [CardService],
   controllers: [CardController],
-  exports: [],
+  exports: [CardService],
 })
 export class CardModule {}

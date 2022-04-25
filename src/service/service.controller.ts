@@ -20,11 +20,12 @@ import { ServiceService } from './service.service';
 import { Types } from 'mongoose';
 import { UpdateServiceDTO } from './dto/update.dto';
 import { CreateServiceDTO } from './dto/create.dto';
-import { PriceService } from 'src/price/price.service';
+import { PriceService } from '../price/price.service';
 import { Pager } from '../common/pager';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ServiceStatus } from './enums/status.enum';
 import { StatusGuard } from './guards/status.guard';
+import { AssetsGuard } from './guards/assets.guard';
 import './extensions/array.extension';
 import './extensions/service.extension';
 
@@ -73,10 +74,13 @@ export class ServiceController {
   }
 
   @Post()
+  @UseGuards(AssetsGuard)
   async create(@Body() createServiceDTO: CreateServiceDTO, @Req() req: any): Promise<Service> {
     createServiceDTO.customerId = req?.body?.user?.id;
+
     const newService = await new Service()
       .toService(createServiceDTO, this.priceService, this.serviceService);
+
     return this.serviceService.create(newService);
   }
 
