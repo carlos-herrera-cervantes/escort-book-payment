@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, FilterQuery } from 'mongoose';
-import { PaginateDTO } from 'src/common/query-param.dto';
+import { PaginateDTO } from 'src/common/dto/query-param.dto';
 import { CreateDevolutionDTO } from './dto/create.dto';
 import { Devolution, DevolutionDocument } from './schemas/devolution.schema';
 

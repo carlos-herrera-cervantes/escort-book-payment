@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, FilterQuery } from 'mongoose';
-import { PaginateDTO } from '../common/query-param.dto';
+import { PaginateDTO } from '../common/dto/query-param.dto';
 import { UpdateServiceDTO } from './dto/update.dto';
 import { Service, ServiceDocument } from './schemas/service.schema';
 import { ServiceDetail, ServiceDetailDocument } from './schemas/service-detail.schema';

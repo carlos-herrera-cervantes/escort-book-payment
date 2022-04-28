@@ -15,25 +15,26 @@ import { CardService } from './card.service';
 import { CreateCardDTO } from './dto/create.dto';
 import { Card } from './schemas/card.schema';
 import { Types } from 'mongoose';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Controller('/api/v1/payments/cards')
 export class CardController {
   @Inject(CardService)
   private readonly cardService: CardService;
 
+  @Inject(EventEmitter2)
+  private readonly eventEmitter: EventEmitter2;
+
   @Get()
   async getAll(@Req() req: any): Promise<Card[]> {
     const customerId: string = req?.body?.user?.id;
-    return this.cardService.getAll({ customerId: new Types.ObjectId(customerId) });
+    return this.cardService.getAll({ customerId });
   }
 
   @Get(':id')
   async getOne(@Req() req: any, @Param('id') id: string): Promise<Card> {
     const customerId: string = req?.body?.user?.id;
-    const card: Card = await this.cardService.getOne({
-      customerId: new Types.ObjectId(customerId),
-      _id: new Types.ObjectId(id),
-    });
+    const card: Card = await this.cardService.getOne({ customerId, _id: id });
 
     if (!card) throw new NotFoundException();
 
@@ -50,20 +51,24 @@ export class CardController {
     newCard.numbers = card.numbers;
     newCard.alias = card.alias;
 
-    return this.cardService.create(newCard);
+    const created = await this.cardService.create(newCard);
+    
+    this.eventEmitter.emit('card.created', customerId);
+
+    return created;
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteOne(@Req() req: any, @Param('id') id: string): Promise<void> {
-    const customerId: string = req?.body?.user?.id;
-    const card: Card = await this.cardService.getOne({
-      customerId: new Types.ObjectId(customerId),
-      _id: new Types.ObjectId(id),
-    });
+    const customerId = req?.body?.user?.id;
+    const counter = await this.cardService.count({ customerId, _id: id });
 
-    if (!card) throw new NotFoundException();
+    if (!counter) throw new NotFoundException();
 
     await this.cardService.deleteOne({ _id: new Types.ObjectId(id) });
+    const remainingCards = await this.cardService.count({ customerId });
+
+    if (!remainingCards) this.eventEmitter.emit('empty.cards', customerId);
   }
 }
