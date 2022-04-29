@@ -1,4 +1,4 @@
-import { PaginateDTO } from './query-param.dto';
+import { PaginateDTO } from '../dto/query-param.dto';
 
 export class Pager {
   private next: number;

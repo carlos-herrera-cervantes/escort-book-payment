@@ -13,7 +13,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { EscortProfileService } from '../escort-profile/escort-profile.service';
-import { PaginateDTO } from '../common/query-param.dto';
+import { PaginateDTO } from '../common/dto/query-param.dto';
 import { ServiceDTO } from './dto/list.dto';
 import { Service } from './schemas/service.schema';
 import { ServiceService } from './service.service';
@@ -21,7 +21,7 @@ import { Types } from 'mongoose';
 import { UpdateServiceDTO } from './dto/update.dto';
 import { CreateServiceDTO } from './dto/create.dto';
 import { PriceService } from '../price/price.service';
-import { Pager } from '../common/pager';
+import { Pager } from '../common/helpers/pager';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ServiceStatus } from './enums/status.enum';
 import { StatusGuard } from './guards/status.guard';
