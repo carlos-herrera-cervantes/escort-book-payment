@@ -1,5 +1,6 @@
 import {
   Body,
+  ConflictException,
   Controller,
   Delete,
   Get,
@@ -40,11 +41,23 @@ export class PaymentController {
     return this.paymentService.getLinkedPaymentMethods(filter, populateFilter);
   }
 
+  @Get('methods/:id/user')
+  async getLinkedPaymentMethodsByUser(@Param('id') id: string): Promise<PaymentUser> {
+    const filter = { userId: id };
+    const populateFilter = { path: 'paymentMethodId' };
+    return this.paymentService.getLinkedPaymentMethods(filter, populateFilter);
+  }
+
   @Post('methods')
   async createPaymentMethod(
     @Body() paymentMethod: CreatePaymentMethodCatalogDTO,
   ): Promise<PaymentMethodCatalog> {
-    return this.paymentService.createPaymentMethod(paymentMethod);
+    return this.paymentService
+      .createPaymentMethod(paymentMethod)
+      .catch(err => {
+        if (err.code == 11000) throw new ConflictException();
+        throw err;
+      });
   }
 
   @Post('link')
