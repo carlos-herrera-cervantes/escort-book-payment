@@ -14,18 +14,23 @@ import {
 } from '@nestjs/common';
 import { EscortProfileService } from '../escort-profile/escort-profile.service';
 import { PaginateDTO } from '../common/dto/query-param.dto';
-import { ServiceDTO } from './dto/list.dto';
+import { ListTotalDTO, ServiceDTO } from './dto/list.dto';
 import { Service } from './schemas/service.schema';
 import { ServiceService } from './service.service';
 import { Types } from 'mongoose';
 import { UpdateServiceDTO } from './dto/update.dto';
-import { CreateServiceDTO } from './dto/create.dto';
+import { CalculateTotalServiceDTO, CreateServiceDTO } from './dto/create.dto';
 import { PriceService } from '../price/price.service';
 import { Pager } from '../common/helpers/pager';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ServiceStatus } from './enums/status.enum';
 import { StatusGuard } from './guards/status.guard';
 import { AssetsGuard } from './guards/assets.guard';
+import { TimeUnit } from './enums/time-unit.enum';
+import { In } from 'typeorm';
+import { CardService } from '../card/card.service';
+import { MessageResponseDTO } from '../common/dto/message-response.dto';
+import { PaymentMethodCatalog } from '../payment/schemas/payment-method-catalog.schema';
 import './extensions/array.extension';
 import './extensions/service.extension';
 
@@ -42,6 +47,9 @@ export class ServiceController {
 
   @Inject(EventEmitter2)
   private readonly eventEmitter: EventEmitter2;
+
+  @Inject(CardService)
+  private readonly cardService: CardService;
 
   @Get()
   async getByPagination(@Query() paginate: PaginateDTO, @Req() req: any): Promise<Pager> {
@@ -62,15 +70,39 @@ export class ServiceController {
   @Get(':id')
   async getById(@Param('id') id: string, @Req() req: any): Promise<ServiceDTO> {
     const customerId = req?.body?.user?.id;
-    const service = await this.serviceService
-      .getOneAndPopulate({ customerId, _id: id }, { path: 'cardId details' });
+    const service = await this.serviceService.getOneAndPopulate(
+      { customerId, _id: id },
+      { path: 'paymentDetails', populate: { path: 'paymentMethodId' } },
+      { path: 'details' },
+    );
 
     if (!service) throw new NotFoundException();
 
-    const escortProfile = await this.escortProfileService
-      .findOne({ where: { escortId: service.escortId.toString() } });
+    const escortProfile = await this.escortProfileService.findOne({
+      where: { escortId: service.escortId.toString() },
+    });
 
     return new ServiceDTO().toServiceDetail(escortProfile, service);
+  }
+
+  @Post('total')
+  async calculateTotal(@Body() calculateTotal: CalculateTotalServiceDTO): Promise<ListTotalDTO> {
+    const { priceId, timeQuantity, details, timeMeasurementUnit } = calculateTotal;
+    const price = await this.priceService.findOne({ where: { id: priceId } });
+
+    if (!price) throw new NotFoundException();
+    if (timeQuantity < price.quantity) throw new BadRequestException();
+
+    const serviceIds = details.map(element => element.serviceId);
+    const priceCounter = await this.priceService.countPriceDetail({ where: { id: In(serviceIds) } });
+
+    if (priceCounter != serviceIds.length) throw new NotFoundException();
+
+    const totalDetail = details.reduce((partialSum, value) => partialSum + value.cost, 0);
+    const total = timeMeasurementUnit == TimeUnit.Minutes ? price.cost + totalDetail :
+      (timeQuantity * price.cost) + totalDetail;
+
+    return { total };
   }
 
   @Post()
@@ -80,8 +112,11 @@ export class ServiceController {
 
     const newService = await new Service()
       .toService(createServiceDTO, this.priceService, this.serviceService);
+    const created = await this.serviceService.create(newService);
 
-    return this.serviceService.create(newService);
+    this.eventEmitter.emit('service.created', created, createServiceDTO.paymentDetails);
+
+    return created;
   }
 
   @Patch(':id')
@@ -90,32 +125,37 @@ export class ServiceController {
     @Body() service: UpdateServiceDTO,
     @Req() req: any,
     @Param('id') id: string,
-  ): Promise<Service> {
-    const user = req?.body?.user;
-    const filter = user?.type == 'Customer' ?
-      { customerId: user?.id, _id: id } :
-      { escortId: user?.id, _id: id };
+  ): Promise<MessageResponseDTO> {
+    const filter = req?.body?.user?.type == 'Customer' ?
+      { customerId: req?.body?.user?.id, _id: id } :
+      { escortId: req?.body?.user?.id, _id: id };
 
-    const exists = await this.serviceService.getOne(filter);
+    const exists = await this.serviceService.getOneAndPopulate(filter, {
+      path: 'paymentDetails', populate: { path: 'paymentMethodId' },
+    },);
 
     if (!exists) throw new NotFoundException();
 
     const validStatus: string[] = [ServiceStatus.Boarding, ServiceStatus.Started];
+    const notValidStatus = !validStatus.includes(exists.status) ||
+      exists.status == ServiceStatus.Started && service.status == ServiceStatus.Started;
 
-    if (!validStatus.includes(exists.status)) {
-      throw new BadRequestException();
-    }
-
-    const updatedService = await this.serviceService.updateOne(service, filter);
-
+    if (notValidStatus) throw new BadRequestException();
     if (service.status == ServiceStatus.Started) {
       this.eventEmitter.emit('service.started', exists);
+      return { message: 'OK' };
     }
 
-    if (service.status == ServiceStatus.Completed) {
-      this.eventEmitter.emit('service.paid', exists);
+    const cardPayment = exists.paymentDetails.some(paymentMethod =>
+      paymentMethod.paymentMethodId.name == 'Card');
+
+    if (cardPayment && !service.cardId) throw new BadRequestException();
+    if (service.cardId) {
+      const cardCounter = await this.cardService.count({ _id: service.cardId });
+      if (!cardCounter) throw new NotFoundException();
     }
 
-    return updatedService;
+    this.eventEmitter.emit('service.paid', exists, service.cardId);
+    return { message: 'Pending' };
   }
 }
