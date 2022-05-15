@@ -49,9 +49,11 @@ export class ServiceService {
 
   async getOneAndPopulate(
     filter: FilterQuery<Service>,
-    populateFilter: any
+    ...populateFilter: any
   ): Promise<Service> {
-    return this.serviceModel.findOne(filter).populate(populateFilter).lean();
+    const query = this.serviceModel.findOne(filter);
+    populateFilter.forEach(filter => query.populate(filter));
+    return query;
   }
 
   async create(service: Service): Promise<Service> {

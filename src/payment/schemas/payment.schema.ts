@@ -16,6 +16,9 @@ export class Payment {
   @Prop({ type: MongooseSchema.Types.ObjectId })
   serviceId: Types.ObjectId;
 
+  @Prop({ type: MongooseSchema.Types.ObjectId })
+  cardId: Types.ObjectId;
+
   @Prop()
   logRequest: string;
 

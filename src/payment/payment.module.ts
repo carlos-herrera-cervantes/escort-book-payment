@@ -9,6 +9,8 @@ import { PaymentUser, PaymentUserSchema } from './schemas/payment-user.schema';
 import { PaymentController } from './payment.controller';
 import { CardCreatedListener } from './listeners/card-created.listener';
 import { EmptyCardsListener } from './listeners/empty-cards.listener';
+import { PaymentDetail, PaymentDetailSchema } from './schemas/payment-detail.schema';
+import { ServiceCreatedListener } from './listeners/service-created.listener';
 
 @Module({
   imports: [
@@ -16,6 +18,7 @@ import { EmptyCardsListener } from './listeners/empty-cards.listener';
       { name: Payment.name, schema: PaymentSchema },
       { name: PaymentMethodCatalog.name, schema: PaymentMethodCatalogSchema },
       { name: PaymentUser.name, schema: PaymentUserSchema },
+      { name: PaymentDetail.name, schema: PaymentDetailSchema },
     ]),
   ],
   providers: [
@@ -24,8 +27,9 @@ import { EmptyCardsListener } from './listeners/empty-cards.listener';
     SoftDeletePaymentMethodListener,
     CardCreatedListener,
     EmptyCardsListener,
+    ServiceCreatedListener,
   ],
   controllers: [PaymentController],
-  exports: [],
+  exports: [PaymentService],
 })
 export class PaymentModule {}

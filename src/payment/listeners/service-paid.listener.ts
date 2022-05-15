@@ -1,9 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PaymentService } from '../payment.service';
 import { OnEvent } from '@nestjs/event-emitter';
-import { Service } from '../../service/schemas/service.schema';
+import { ServiceDocument } from '../../service/schemas/service.schema';
 import { Types } from 'mongoose';
 import { Payment } from '../schemas/payment.schema';
+import { ServiceStatus } from '../../service/enums/status.enum';
 
 @Injectable()
 export class ServicePaidListener {
@@ -11,12 +12,21 @@ export class ServicePaidListener {
   private readonly paymentService: PaymentService;
 
   @OnEvent('service.paid', { async: true })
-  async handlePaidService(service: Service): Promise<void> {
+  async handlePaidService(service: ServiceDocument, cardId: string): Promise<void> {
+    if (!cardId) {
+      service.status = ServiceStatus.Completed;
+      await service.save();
+      return;
+    }
+
     const newPayment = new Payment();
     newPayment.escortId = new Types.ObjectId(service.escortId);
     newPayment.customerId = new Types.ObjectId(service.customerId);
     newPayment.serviceId = new Types.ObjectId(service._id);
-
+    newPayment.cardId = new Types.ObjectId(cardId);
     await this.paymentService.create(newPayment);
+
+    service.status = ServiceStatus.Completed;
+    await service.save();
   }
 }

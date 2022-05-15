@@ -6,6 +6,7 @@ import { PaymentMethodCatalog, PaymentMethodCatalogDocument } from './schemas/pa
 import { PaymentUser, PaymentUserDocument } from './schemas/payment-user.schema';
 import { CreatePaymentMethodCatalogDTO, CreatePaymentUserDTO } from './dto/create.dto';
 import { FilterQuery } from 'mongoose';
+import { PaymentDetail, PaymentDetailDocument } from './schemas/payment-detail.schema';
 
 @Injectable()
 export class PaymentService {
@@ -18,6 +19,9 @@ export class PaymentService {
   @InjectModel(PaymentUser.name)
   private readonly paymentUserModel: Model<PaymentUserDocument>;
 
+  @InjectModel(PaymentDetail.name)
+  private readonly paymentDetailModel: Model<PaymentDetailDocument>;
+
   async create(payment: Payment): Promise<Payment> {
     return this.paymentModel.create(payment);
   }
@@ -26,6 +30,10 @@ export class PaymentService {
     paymentMethodCatalog: CreatePaymentMethodCatalogDTO,
   ): Promise<PaymentMethodCatalog> {
     return this.paymentMethodCatalogModel.create(paymentMethodCatalog);
+  }
+
+  async createPaymentDetail(details: PaymentDetail[]): Promise<any> {
+    return this.paymentDetailModel.insertMany(details);
   }
 
   async getPaymentMethods(filter?: FilterQuery<PaymentMethodCatalog>): Promise<PaymentMethodCatalog[]> {

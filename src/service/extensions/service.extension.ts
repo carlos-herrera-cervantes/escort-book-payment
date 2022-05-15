@@ -25,22 +25,20 @@ Service.prototype.toService = async function (
 ): Promise<Service> {
     const {
       priceId,
-      cardId,
       customerId,
       escortId,
       timeQuantity,
       timeMeasurementUnit,
       details,
+      paymentDetails,
     } = createServiceDTO;
 
     const self = this as Service;
     const price = await priceRepository.findOne({ where: { id: priceId } });
 
     if (!price) throw new NotFoundException();
-
     if (timeQuantity < price.quantity) throw new BadRequestException();
 
-    self.cardId = new Types.ObjectId(cardId);
     self.customerId = new Types.ObjectId(customerId);
     self.escortId = new Types.ObjectId(escortId);
     self.timeQuantity = timeQuantity;
@@ -61,6 +59,10 @@ Service.prototype.toService = async function (
 
     self.price = timeMeasurementUnit == TimeUnit.Minutes ? price.cost + totalDetail :
       (timeQuantity * price.cost) + totalDetail;
+    
+    const totalReceived = paymentDetails.reduce((partialSum, value) => partialSum + value.quantity, 0);
+
+    if (totalReceived < self.price) throw new BadRequestException();
 
     return self;
 }

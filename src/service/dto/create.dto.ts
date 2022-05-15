@@ -1,19 +1,7 @@
-import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { TimeUnit } from '../enums/time-unit.enum';
 
-export class CreateServiceDTO {
-  @IsNotEmpty()
-  @IsString()
-  cardId: string;
-
-  @IsOptional()
-  @IsString()
-  customerId: string;
-
-  @IsNotEmpty()
-  @IsString()
-  escortId: string;
-
+export class CalculateTotalServiceDTO {
   @IsNotEmpty()
   @IsString()
   priceId: string;
@@ -31,6 +19,24 @@ export class CreateServiceDTO {
   details: CreateServiceDetailDTO[] = [];
 }
 
+export class CreateServiceDTO extends CalculateTotalServiceDTO {
+  @IsOptional()
+  @IsString()
+  customerId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  escortId: string;
+
+  @IsNotEmpty()
+  @IsArray()
+  paymentDetails: CreatePaymentDetailDTO[] = [];
+
+  @IsOptional()
+  @IsBoolean()
+  partialPayment: boolean = false;
+}
+
 export class CreateServiceDetailDTO {
   @IsNotEmpty()
   @IsString()
@@ -43,4 +49,13 @@ export class CreateServiceDetailDTO {
   @IsNotEmpty()
   @IsString()
   cost: number;
+}
+
+export class CreatePaymentDetailDTO {
+  @IsNotEmpty()
+  @IsString()
+  paymentMethodId: string;
+
+  @IsNotEmpty()
+  quantity: number;
 }
