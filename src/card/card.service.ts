@@ -18,7 +18,9 @@ export class CardService {
   }
 
   async create(card: Card): Promise<Card> {
-    const totalCards: number = await this.cardModel.count({ customerId: card.customerId });
+    const totalCards: number = await this.cardModel.count({
+      customerId: card.customerId,
+    });
 
     if (totalCards >= MAXIMUM_CARDS) throw new ConflictException();
 

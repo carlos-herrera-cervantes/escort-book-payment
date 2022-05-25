@@ -1,4 +1,13 @@
-import { Body, Controller, Inject, NotFoundException, Param, Patch, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Inject,
+  NotFoundException,
+  Param,
+  Patch,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { CustomerBankAccountService } from './customer-bank-account.service';
 import { CreateCustomerBankAccountDTO } from './dto/create.dto';
 import { UpdateCustomerBankAccountDTO } from './dto/update.dto';
@@ -11,10 +20,11 @@ export class CustomerBankAccountController {
   private readonly customerBankAccountService: CustomerBankAccountService;
 
   @Post()
-  async create(@Req() req: any, @Body() account: CreateCustomerBankAccountDTO): Promise<CustomerBankAccount> {
-    const customerId: string = req?.body?.user?.id;
-    account.customerId = customerId;
-    
+  async create(
+    @Req() req: any,
+    @Body() account: CreateCustomerBankAccountDTO,
+  ): Promise<CustomerBankAccount> {
+    account.customerId = req?.body?.user?.id;
     return this.customerBankAccountService.create(account);
   }
 
@@ -25,13 +35,16 @@ export class CustomerBankAccountController {
     @Body() newAccount: UpdateCustomerBankAccountDTO,
   ): Promise<CustomerBankAccount> {
     const customerId: string = req?.body?.user?.id;
-    const account: CustomerBankAccount = await this.customerBankAccountService.getOne({
-      _id: new Types.ObjectId(id),
-      customerId: new Types.ObjectId(customerId),
-    });
+    const account: CustomerBankAccount =
+      await this.customerBankAccountService.getOne({
+        _id: new Types.ObjectId(id),
+        customerId: new Types.ObjectId(customerId),
+      });
 
     if (!account) throw new NotFoundException();
 
-    return this.customerBankAccountService.updateOne(newAccount, { _id: new Types.ObjectId(id) });
+    return this.customerBankAccountService.updateOne(newAccount, {
+      _id: new Types.ObjectId(id),
+    });
   }
 }

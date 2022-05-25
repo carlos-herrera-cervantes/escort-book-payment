@@ -1,4 +1,12 @@
-import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { TimeUnit } from '../enums/time-unit.enum';
 
 export class CalculateTotalServiceDTO {
@@ -34,7 +42,7 @@ export class CreateServiceDTO extends CalculateTotalServiceDTO {
 
   @IsOptional()
   @IsBoolean()
-  partialPayment: boolean = false;
+  partialPayment = false;
 }
 
 export class CreateServiceDetailDTO {

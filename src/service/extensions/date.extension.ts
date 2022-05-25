@@ -9,7 +9,11 @@ declare global {
   }
 }
 
-Date.prototype.addServiceTime = function (quantity: number, timeUnit: string, now: Date): Date {
+Date.prototype.addServiceTime = function (
+  quantity: number,
+  timeUnit: string,
+  now: Date,
+): Date {
   const self = this as Date;
 
   if (timeUnit == TimeUnit.Minutes) {
@@ -21,17 +25,17 @@ Date.prototype.addServiceTime = function (quantity: number, timeUnit: string, no
   }
 
   if (timeUnit == TimeUnit.Night) {
-    self.setHours(now.getHours() + (quantity * 8));
+    self.setHours(now.getHours() + quantity * 8);
   }
 
   return self;
-}
+};
 
 Date.prototype.toCronExpression = function (): string {
   const self = this as Date;
-  
+
   const minutes = self.getMinutes();
   const hours = self.getUTCHours();
 
   return `cron(${minutes} ${hours} * * ? *)`;
-}
+};

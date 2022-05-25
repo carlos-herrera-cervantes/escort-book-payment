@@ -20,7 +20,8 @@ export class EscortBankAccount {
   updateAt: Date;
 }
 
-export const EscortBankAccountSchema = SchemaFactory.createForClass(EscortBankAccount);
+export const EscortBankAccountSchema =
+  SchemaFactory.createForClass(EscortBankAccount);
 
 EscortBankAccountSchema.pre<EscortBankAccountDocument>('save', function () {
   this.clabe = this.clabe.replace(/.(?=.{4})/g, 'X');

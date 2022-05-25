@@ -9,7 +9,9 @@ export class EmptyCardsListener {
 
   @OnEvent('empty.cards', { async: true })
   async handleEmptyCards(customerId: string): Promise<void> {
-    const cardPaymentMethod = await this.paymentService.getPaymentMethod({ name: 'Card' });
+    const cardPaymentMethod = await this.paymentService.getPaymentMethod({
+      name: 'Card',
+    });
     await this.paymentService.unlinkPaymentMethod({
       paymentMethodId: cardPaymentMethod._id,
       userId: customerId,

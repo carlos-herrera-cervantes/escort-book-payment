@@ -30,7 +30,6 @@ import { TimeUnit } from './enums/time-unit.enum';
 import { In } from 'typeorm';
 import { CardService } from '../card/card.service';
 import { MessageResponseDTO } from '../common/dto/message-response.dto';
-import { PaymentMethodCatalog } from '../payment/schemas/payment-method-catalog.schema';
 import './extensions/array.extension';
 import './extensions/service.extension';
 
@@ -52,19 +51,26 @@ export class ServiceController {
   private readonly cardService: CardService;
 
   @Get()
-  async getByPagination(@Query() paginate: PaginateDTO, @Req() req: any): Promise<Pager> {
+  async getByPagination(
+    @Query() paginate: PaginateDTO,
+    @Req() req: any,
+  ): Promise<Pager> {
     const user = req?.body?.user;
-    const filter = user?.type == 'Customer' ?
-      { customerId: new Types.ObjectId(user.id) } :
-      { escortId: new Types.ObjectId(user.id) };
+    const filter =
+      user?.type == 'Customer'
+        ? { customerId: new Types.ObjectId(user.id) }
+        : { escortId: new Types.ObjectId(user.id) };
 
     const [services, totalDocs] = await Promise.all([
       this.serviceService.getByPagination(paginate, filter),
       this.serviceService.count({ filter }),
     ]);
-    
-    return new Pager()
-      .getPager(paginate, totalDocs, await services.setEscortProfile(this.escortProfileService));
+
+    return new Pager().getPager(
+      paginate,
+      totalDocs,
+      await services.setEscortProfile(this.escortProfileService),
+    );
   }
 
   @Get(':id')
@@ -86,35 +92,55 @@ export class ServiceController {
   }
 
   @Post('total')
-  async calculateTotal(@Body() calculateTotal: CalculateTotalServiceDTO): Promise<ListTotalDTO> {
-    const { priceId, timeQuantity, details, timeMeasurementUnit } = calculateTotal;
+  async calculateTotal(
+    @Body() calculateTotal: CalculateTotalServiceDTO,
+  ): Promise<ListTotalDTO> {
+    const { priceId, timeQuantity, details, timeMeasurementUnit } =
+      calculateTotal;
     const price = await this.priceService.findOne({ where: { id: priceId } });
 
     if (!price) throw new NotFoundException();
     if (timeQuantity < price.quantity) throw new BadRequestException();
 
-    const serviceIds = details.map(element => element.serviceId);
-    const priceCounter = await this.priceService.countPriceDetail({ where: { id: In(serviceIds) } });
+    const serviceIds = details.map((element) => element.serviceId);
+    const priceCounter = await this.priceService.countPriceDetail({
+      where: { id: In(serviceIds) },
+    });
 
     if (priceCounter != serviceIds.length) throw new NotFoundException();
 
-    const totalDetail = details.reduce((partialSum, value) => partialSum + value.cost, 0);
-    const total = timeMeasurementUnit == TimeUnit.Minutes ? price.cost + totalDetail :
-      (timeQuantity * price.cost) + totalDetail;
+    const totalDetail = details.reduce(
+      (partialSum, value) => partialSum + value.cost,
+      0,
+    );
+    const total =
+      timeMeasurementUnit == TimeUnit.Minutes
+        ? price.cost + totalDetail
+        : timeQuantity * price.cost + totalDetail;
 
     return { total };
   }
 
   @Post()
   @UseGuards(AssetsGuard)
-  async create(@Body() createServiceDTO: CreateServiceDTO, @Req() req: any): Promise<Service> {
+  async create(
+    @Body() createServiceDTO: CreateServiceDTO,
+    @Req() req: any,
+  ): Promise<Service> {
     createServiceDTO.customerId = req?.body?.user?.id;
 
-    const newService = await new Service()
-      .toService(createServiceDTO, this.priceService, this.serviceService);
+    const newService = await new Service().toService(
+      createServiceDTO,
+      this.priceService,
+      this.serviceService,
+    );
     const created = await this.serviceService.create(newService);
 
-    this.eventEmitter.emit('service.created', created, createServiceDTO.paymentDetails);
+    this.eventEmitter.emit(
+      'service.created',
+      created,
+      createServiceDTO.paymentDetails,
+    );
 
     return created;
   }
@@ -126,19 +152,26 @@ export class ServiceController {
     @Req() req: any,
     @Param('id') id: string,
   ): Promise<MessageResponseDTO> {
-    const filter = req?.body?.user?.type == 'Customer' ?
-      { customerId: req?.body?.user?.id, _id: id } :
-      { escortId: req?.body?.user?.id, _id: id };
+    const filter =
+      req?.body?.user?.type == 'Customer'
+        ? { customerId: req?.body?.user?.id, _id: id }
+        : { escortId: req?.body?.user?.id, _id: id };
 
     const exists = await this.serviceService.getOneAndPopulate(filter, {
-      path: 'paymentDetails', populate: { path: 'paymentMethodId' },
-    },);
+      path: 'paymentDetails',
+      populate: { path: 'paymentMethodId' },
+    });
 
     if (!exists) throw new NotFoundException();
 
-    const validStatus: string[] = [ServiceStatus.Boarding, ServiceStatus.Started];
-    const notValidStatus = !validStatus.includes(exists.status) ||
-      exists.status == ServiceStatus.Started && service.status == ServiceStatus.Started;
+    const validStatus: string[] = [
+      ServiceStatus.Boarding,
+      ServiceStatus.Started,
+    ];
+    const notValidStatus =
+      !validStatus.includes(exists.status) ||
+      (exists.status == ServiceStatus.Started &&
+        service.status == ServiceStatus.Started);
 
     if (notValidStatus) throw new BadRequestException();
     if (service.status == ServiceStatus.Started) {
@@ -146,8 +179,9 @@ export class ServiceController {
       return { message: 'OK' };
     }
 
-    const cardPayment = exists.paymentDetails.some(paymentMethod =>
-      paymentMethod.paymentMethodId.name == 'Card');
+    const cardPayment = exists.paymentDetails.some(
+      (paymentMethod) => paymentMethod.paymentMethodId.name == 'Card',
+    );
 
     if (cardPayment && !service.cardId) throw new BadRequestException();
     if (service.cardId) {

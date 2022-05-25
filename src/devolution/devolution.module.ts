@@ -5,7 +5,9 @@ import { Devolution, DevolutionSchema } from './schemas/devolution.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Devolution.name, schema: DevolutionSchema }]),
+    MongooseModule.forFeature([
+      { name: Devolution.name, schema: DevolutionSchema },
+    ]),
   ],
   providers: [DevolutionService],
   controllers: [],

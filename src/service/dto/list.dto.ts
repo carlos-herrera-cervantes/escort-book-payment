@@ -30,13 +30,16 @@ export class ServiceDTO {
     this.timeMeasurementUnit = service.timeMeasurementUnit;
     this.createdAt = service.createdAt;
     this.updatedAt = service.updatedAt;
-    this.details = details.map(detail => ({ name: detail.serviceName, cost: detail.cost }));
-    this.paymentDetails = paymentDetails.map(detail => {
-      const paymentMetod = detail.paymentMethodId as PaymentMethodCatalog;
-      return { name: paymentMetod.name, quantity: detail.quantity };
+    this.details = details.map((detail) => ({
+      name: detail.serviceName,
+      cost: detail.cost,
+    }));
+    this.paymentDetails = paymentDetails.map((detail) => {
+      const paymentMethod = detail.paymentMethodId as PaymentMethodCatalog;
+      return { name: paymentMethod.name, quantity: detail.quantity };
     });
 
-    return this
+    return this;
   }
 }
 
