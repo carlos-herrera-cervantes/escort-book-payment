@@ -23,46 +23,56 @@ Service.prototype.toService = async function (
   priceRepository: PriceService,
   serviceRepository: ServiceService,
 ): Promise<Service> {
-    const {
-      priceId,
-      customerId,
-      escortId,
-      timeQuantity,
-      timeMeasurementUnit,
-      details,
-      paymentDetails,
-    } = createServiceDTO;
+  const {
+    priceId,
+    customerId,
+    escortId,
+    timeQuantity,
+    timeMeasurementUnit,
+    details,
+    paymentDetails,
+  } = createServiceDTO;
 
-    const self = this as Service;
-    const price = await priceRepository.findOne({ where: { id: priceId } });
+  const self = this as Service;
+  const price = await priceRepository.findOne({ where: { id: priceId } });
 
-    if (!price) throw new NotFoundException();
-    if (timeQuantity < price.quantity) throw new BadRequestException();
+  if (!price) throw new NotFoundException();
+  if (timeQuantity < price.quantity) throw new BadRequestException();
 
-    self.customerId = new Types.ObjectId(customerId);
-    self.escortId = new Types.ObjectId(escortId);
-    self.timeQuantity = timeQuantity;
-    self.timeMeasurementUnit = timeMeasurementUnit;
+  self.customerId = new Types.ObjectId(customerId);
+  self.escortId = new Types.ObjectId(escortId);
+  self.timeQuantity = timeQuantity;
+  self.timeMeasurementUnit = timeMeasurementUnit;
 
-    if (details) {
-      var totalDetail = details.reduce((partialSum, value) => partialSum + value.cost, 0);
-      
-      createServiceDTO.details.push({
-        serviceId: priceId,
-        serviceName: 'Time',
-        cost: price.cost,
-      });
-      
-      const bulkResult = await serviceRepository.createBatchDetail(details);
-      self.details = bulkResult.map(result => result._id);
-    }
+  let totalDetail = 0;
 
-    self.price = timeMeasurementUnit == TimeUnit.Minutes ? price.cost + totalDetail :
-      (timeQuantity * price.cost) + totalDetail;
-    
-    const totalReceived = paymentDetails.reduce((partialSum, value) => partialSum + value.quantity, 0);
+  if (details) {
+    totalDetail = details.reduce(
+      (partialSum, value) => partialSum + value.cost,
+      0,
+    );
 
-    if (totalReceived < self.price) throw new BadRequestException();
+    createServiceDTO.details.push({
+      serviceId: priceId,
+      serviceName: 'Time',
+      cost: price.cost,
+    });
 
-    return self;
-}
+    const bulkResult = await serviceRepository.createBatchDetail(details);
+    self.details = bulkResult.map((result) => result._id);
+  }
+
+  self.price =
+    timeMeasurementUnit == TimeUnit.Minutes
+      ? price.cost + totalDetail
+      : timeQuantity * price.cost + totalDetail;
+
+  const totalReceived = paymentDetails.reduce(
+    (partialSum, value) => partialSum + value.quantity,
+    0,
+  );
+
+  if (totalReceived < self.price) throw new BadRequestException();
+
+  return self;
+};

@@ -28,10 +28,14 @@ export class Service {
   @Prop()
   timeMeasurementUnit: string;
 
-  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'ServiceDetail' }] })
+  @Prop({
+    type: [{ type: MongooseSchema.Types.ObjectId, ref: 'ServiceDetail' }],
+  })
   details: ServiceDetail[] | Types.ObjectId[];
 
-  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'PaymentDetail' }] })
+  @Prop({
+    type: [{ type: MongooseSchema.Types.ObjectId, ref: 'PaymentDetail' }],
+  })
   paymentDetails: PaymentDetail[] | Types.ObjectId[];
 
   @Prop()

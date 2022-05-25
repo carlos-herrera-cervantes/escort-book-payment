@@ -16,16 +16,14 @@ export class ServiceCreatedListener {
     service: ServiceDocument,
     paymentDetails: CreatePaymentDetailDTO[],
   ): Promise<void> {
-    const details = paymentDetails.map(element => ({
+    const details = paymentDetails.map((element) => ({
       paymentMethodId: new Types.ObjectId(element.paymentMethodId),
       serviceId: service._id,
       quantity: element.quantity,
     })) as PaymentDetail[];
-
     const bulkResult = await this.paymentService.createPaymentDetail(details);
-    const ids = bulkResult.map(result => result._id);
 
-    service.paymentDetails = ids;
+    service.paymentDetails = bulkResult.map((result) => result._id);
     await service.save();
   }
 }

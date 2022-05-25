@@ -52,7 +52,7 @@ export class CardController {
     newCard.alias = card.alias;
 
     const created = await this.cardService.create(newCard);
-    
+
     this.eventEmitter.emit('card.created', customerId);
 
     return created;

@@ -1,4 +1,13 @@
-import { Body, Controller, Inject, NotFoundException, Param, Patch, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Inject,
+  NotFoundException,
+  Param,
+  Patch,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { CreateEscortBankAccountDTO } from './dto/create.dto';
 import { EscortBankAccountService } from './escort-bank-account.service';
 import { Types } from 'mongoose';
@@ -11,10 +20,13 @@ export class EscortBankAccountController {
   private readonly escortBankAccountService: EscortBankAccountService;
 
   @Post()
-  async create(@Req() req: any, @Body() account: CreateEscortBankAccountDTO): Promise<EscortBankAccount> {
+  async create(
+    @Req() req: any,
+    @Body() account: CreateEscortBankAccountDTO,
+  ): Promise<EscortBankAccount> {
     const escortId: string = req?.body?.user?.id;
     account.escortId = escortId;
-    
+
     return this.escortBankAccountService.create(account);
   }
 
@@ -25,13 +37,16 @@ export class EscortBankAccountController {
     @Body() newAccount: UpdateEscortBankAccountDTO,
   ): Promise<EscortBankAccount> {
     const customerId: string = req?.body?.user?.id;
-    const account: EscortBankAccount = await this.escortBankAccountService.getOne({
-      _id: new Types.ObjectId(id),
-      customerId: new Types.ObjectId(customerId),
-    });
+    const account: EscortBankAccount =
+      await this.escortBankAccountService.getOne({
+        _id: new Types.ObjectId(id),
+        customerId: new Types.ObjectId(customerId),
+      });
 
     if (!account) throw new NotFoundException();
 
-    return this.escortBankAccountService.updateOne(newAccount, { _id: new Types.ObjectId(id) });
+    return this.escortBankAccountService.updateOne(newAccount, {
+      _id: new Types.ObjectId(id),
+    });
   }
 }

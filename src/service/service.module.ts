@@ -5,7 +5,10 @@ import { EscortProfileModule } from '../escort-profile/escort-profile.module';
 import { Service, ServiceSchema } from './schemas/service.schema';
 import { ServiceController } from './service.controller';
 import { ServiceService } from './service.service';
-import { ServiceDetail, ServiceDetailSchema } from './schemas/service-detail.schema';
+import {
+  ServiceDetail,
+  ServiceDetailSchema,
+} from './schemas/service-detail.schema';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ServiceStartedListener } from './listeners/service-started.listener';

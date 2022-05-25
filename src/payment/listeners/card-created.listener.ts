@@ -9,15 +9,19 @@ export class CardCreatedListener {
 
   @OnEvent('card.created', { async: true })
   async handleCardCreated(customerId: string): Promise<void> {
-    const cardPaymentMethod = await this.paymentService.getPaymentMethod({ name: 'Card' });
+    const cardPaymentMethod = await this.paymentService.getPaymentMethod({
+      name: 'Card',
+    });
     const counter = await this.paymentService.countLinkedPaymentMethods({
       userId: customerId,
-      paymentMethodId: cardPaymentMethod._id
+      paymentMethodId: cardPaymentMethod._id,
     });
 
     if (counter) return;
 
-    const paymentMethods = [{ paymentMethodId: cardPaymentMethod._id, userId: customerId }];
+    const paymentMethods = [
+      { paymentMethodId: cardPaymentMethod._id, userId: customerId },
+    ];
     await this.paymentService.linkPaymentMethods(paymentMethods);
   }
 }

@@ -2,11 +2,23 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Payment, PaymentDocument } from './schemas/payment.schema';
-import { PaymentMethodCatalog, PaymentMethodCatalogDocument } from './schemas/payment-method-catalog.schema';
-import { PaymentUser, PaymentUserDocument } from './schemas/payment-user.schema';
-import { CreatePaymentMethodCatalogDTO, CreatePaymentUserDTO } from './dto/create.dto';
+import {
+  PaymentMethodCatalog,
+  PaymentMethodCatalogDocument,
+} from './schemas/payment-method-catalog.schema';
+import {
+  PaymentUser,
+  PaymentUserDocument,
+} from './schemas/payment-user.schema';
+import {
+  CreatePaymentMethodCatalogDTO,
+  CreatePaymentUserDTO,
+} from './dto/create.dto';
 import { FilterQuery } from 'mongoose';
-import { PaymentDetail, PaymentDetailDocument } from './schemas/payment-detail.schema';
+import {
+  PaymentDetail,
+  PaymentDetailDocument,
+} from './schemas/payment-detail.schema';
 
 @Injectable()
 export class PaymentService {
@@ -36,11 +48,15 @@ export class PaymentService {
     return this.paymentDetailModel.insertMany(details);
   }
 
-  async getPaymentMethods(filter?: FilterQuery<PaymentMethodCatalog>): Promise<PaymentMethodCatalog[]> {
+  async getPaymentMethods(
+    filter?: FilterQuery<PaymentMethodCatalog>,
+  ): Promise<PaymentMethodCatalog[]> {
     return this.paymentMethodCatalogModel.find(filter).lean();
   }
 
-  async getPaymentMethod(filter?: FilterQuery<PaymentMethodCatalog>): Promise<PaymentMethodCatalog> {
+  async getPaymentMethod(
+    filter?: FilterQuery<PaymentMethodCatalog>,
+  ): Promise<PaymentMethodCatalog> {
     return this.paymentMethodCatalogModel.findOne(filter);
   }
 
@@ -51,7 +67,9 @@ export class PaymentService {
     return this.paymentUserModel.find(filter).populate(populateFilter).lean();
   }
 
-  async softDeletePaymentMethod(filter?: FilterQuery<PaymentMethodCatalog>): Promise<void> {
+  async softDeletePaymentMethod(
+    filter?: FilterQuery<PaymentMethodCatalog>,
+  ): Promise<void> {
     const paymentMethod = await this.paymentMethodCatalogModel.findOne(filter);
 
     if (!paymentMethod) return;
@@ -60,7 +78,9 @@ export class PaymentService {
     await paymentMethod.save();
   }
 
-  async linkPaymentMethods(paymentMethods: CreatePaymentUserDTO[]): Promise<PaymentUser[]> {
+  async linkPaymentMethods(
+    paymentMethods: CreatePaymentUserDTO[],
+  ): Promise<PaymentUser[]> {
     return this.paymentUserModel.create(paymentMethods);
   }
 
@@ -68,11 +88,15 @@ export class PaymentService {
     await this.paymentUserModel.findOneAndDelete(filter);
   }
 
-  async countLinkedPaymentMethods(filter?: FilterQuery<PaymentUser>): Promise<number> {
+  async countLinkedPaymentMethods(
+    filter?: FilterQuery<PaymentUser>,
+  ): Promise<number> {
     return this.paymentUserModel.count(filter);
   }
 
-  async countPaymentMethods(filter?: FilterQuery<PaymentMethodCatalog>): Promise<number> {
+  async countPaymentMethods(
+    filter?: FilterQuery<PaymentMethodCatalog>,
+  ): Promise<number> {
     return this.paymentMethodCatalogModel.count(filter);
   }
 }

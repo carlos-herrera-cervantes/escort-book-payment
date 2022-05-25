@@ -5,7 +5,9 @@ export {};
 
 declare global {
   interface Array<T> {
-    setEscortProfile(escortProfileService: EscortProfileService): Promise<ListServiceDTO[]>;
+    setEscortProfile(
+      escortProfileService: EscortProfileService,
+    ): Promise<ListServiceDTO[]>;
   }
 }
 
@@ -15,8 +17,9 @@ Array.prototype.setEscortProfile = async function (
   const listServiceDTO = [];
 
   for (const service of this) {
-    const escortProfile = await escortProfileService
-      .findOne({ where: { escortId: service.escortId.toString() } });
+    const escortProfile = await escortProfileService.findOne({
+      where: { escortId: service.escortId.toString() },
+    });
     const innerListServiceDTO = new ListServiceDTO();
 
     innerListServiceDTO._id = service._id;
@@ -28,6 +31,6 @@ Array.prototype.setEscortProfile = async function (
 
     listServiceDTO.push(innerListServiceDTO);
   }
-  
+
   return listServiceDTO;
-}
+};

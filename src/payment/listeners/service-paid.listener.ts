@@ -12,7 +12,10 @@ export class ServicePaidListener {
   private readonly paymentService: PaymentService;
 
   @OnEvent('service.paid', { async: true })
-  async handlePaidService(service: ServiceDocument, cardId: string): Promise<void> {
+  async handlePaidService(
+    service: ServiceDocument,
+    cardId: string,
+  ): Promise<void> {
     if (!cardId) {
       service.status = ServiceStatus.Completed;
       await service.save();

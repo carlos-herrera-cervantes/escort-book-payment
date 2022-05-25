@@ -20,6 +20,6 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       database: this.configService.get<string>('ESCORT_PROFILE_DB'),
       entities: [EscortProfile, Price, PriceDetail],
       synchronize: false,
-    }
+    };
   }
 }

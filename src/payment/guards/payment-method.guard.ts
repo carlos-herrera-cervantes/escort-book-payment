@@ -14,7 +14,9 @@ export class PaymentMethodGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const { params } = context.switchToHttp().getRequest();
-    const counter = await this.paymentService.countPaymentMethods({ _id: params?.id });
+    const counter = await this.paymentService.countPaymentMethods({
+      _id: params?.id,
+    });
 
     if (!counter) throw new NotFoundException();
 

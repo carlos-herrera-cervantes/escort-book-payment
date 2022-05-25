@@ -15,7 +15,10 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { MessageResponseDTO } from '../common/dto/message-response.dto';
 import { CreatePaymentMethodCatalogDTO, MethodsDTO } from './dto/create.dto';
-import { LinkPaymentMethodGuard, LinkPaymentMethodsGuard } from './guards/link-payment-method.guard';
+import {
+  LinkPaymentMethodGuard,
+  LinkPaymentMethodsGuard,
+} from './guards/link-payment-method.guard';
 import { PaymentMethodGuard } from './guards/payment-method.guard';
 import { PaymentService } from './payment.service';
 import { PaymentMethodCatalog } from './schemas/payment-method-catalog.schema';
@@ -42,7 +45,9 @@ export class PaymentController {
   }
 
   @Get('methods/:id/user')
-  async getLinkedPaymentMethodsByUser(@Param('id') id: string): Promise<PaymentUser> {
+  async getLinkedPaymentMethodsByUser(
+    @Param('id') id: string,
+  ): Promise<PaymentUser> {
     const filter = { userId: id };
     const populateFilter = { path: 'paymentMethodId' };
     return this.paymentService.getLinkedPaymentMethods(filter, populateFilter);
@@ -54,7 +59,7 @@ export class PaymentController {
   ): Promise<PaymentMethodCatalog> {
     return this.paymentService
       .createPaymentMethod(paymentMethod)
-      .catch(err => {
+      .catch((err) => {
         if (err.code == 11000) throw new ConflictException();
         throw err;
       });
@@ -66,7 +71,7 @@ export class PaymentController {
     @Req() req: any,
     @Body() body: MethodsDTO,
   ): Promise<MessageResponseDTO> {
-    const linkPayments = body.methods.map(element => ({
+    const linkPayments = body.methods.map((element) => ({
       userId: req?.body?.user?.id,
       paymentMethodId: element,
     }));

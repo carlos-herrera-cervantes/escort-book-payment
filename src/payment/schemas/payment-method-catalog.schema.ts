@@ -23,4 +23,5 @@ export class PaymentMethodCatalog {
   updateAt: Date;
 }
 
-export const PaymentMethodCatalogSchema = SchemaFactory.createForClass(PaymentMethodCatalog);
+export const PaymentMethodCatalogSchema =
+  SchemaFactory.createForClass(PaymentMethodCatalog);
