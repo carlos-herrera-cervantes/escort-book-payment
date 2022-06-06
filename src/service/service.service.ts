@@ -33,7 +33,7 @@ export class ServiceService {
     ...populateFilter: any
   ): Promise<Service> {
     const query = this.serviceModel.findOne(filter);
-    populateFilter.forEach((filter) => query.populate(filter));
+    populateFilter.forEach((filter: object) => query.populate(filter));
     return query;
   }
 

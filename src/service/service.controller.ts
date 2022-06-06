@@ -8,7 +8,6 @@ import {
   Req,
   Post,
   NotFoundException,
-  Patch,
   UseGuards,
   BadRequestException,
 } from '@nestjs/common';
@@ -23,15 +22,16 @@ import { CalculateTotalServiceDTO, CreateServiceDTO } from './dto/create.dto';
 import { PriceService } from '../price/price.service';
 import { Pager } from '../common/helpers/pager';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ServiceStatus } from './enums/status.enum';
-import { StatusGuard } from './guards/status.guard';
 import { AssetsGuard } from './guards/assets.guard';
 import { TimeUnit } from './enums/time-unit.enum';
 import { In } from 'typeorm';
 import { CardService } from '../card/card.service';
 import { MessageResponseDTO } from '../common/dto/message-response.dto';
+import { ServiceStatus } from './enums/status.enum';
 import './extensions/array.extension';
+import './extensions/create-dto.extension';
 import './extensions/service.extension';
+import '../common/extensions/number.extensions';
 
 @Controller('/api/v1/payments/services')
 export class ServiceController {
@@ -88,7 +88,7 @@ export class ServiceController {
       where: { escortId: service.escortId.toString() },
     });
 
-    return new ServiceDTO().toServiceDetail(escortProfile, service);
+    return service.setDetail(escortProfile);
   }
 
   @Post('total')
@@ -118,7 +118,9 @@ export class ServiceController {
         ? price.cost + totalDetail
         : timeQuantity * price.cost + totalDetail;
 
-    return { total };
+    const businessCommission = total.calculatePercentage(10);
+
+    return { total: total + businessCommission };
   }
 
   @Post()
@@ -129,8 +131,7 @@ export class ServiceController {
   ): Promise<Service> {
     createServiceDTO.customerId = req?.body?.user?.id;
 
-    const newService = await new Service().toService(
-      createServiceDTO,
+    const newService = await createServiceDTO.toService(
       this.priceService,
       this.serviceService,
     );
@@ -145,18 +146,12 @@ export class ServiceController {
     return created;
   }
 
-  @Patch(':id')
-  @UseGuards(StatusGuard)
-  async updateOne(
-    @Body() service: UpdateServiceDTO,
+  @Post(':id/start')
+  async startService(
     @Req() req: any,
     @Param('id') id: string,
   ): Promise<MessageResponseDTO> {
-    const filter =
-      req?.body?.user?.type == 'Customer'
-        ? { customerId: req?.body?.user?.id, _id: id }
-        : { escortId: req?.body?.user?.id, _id: id };
-
+    const filter = { escortId: req?.body?.user?.id, _id: id };
     const exists = await this.serviceService.getOneAndPopulate(filter, {
       path: 'paymentDetails',
       populate: { path: 'paymentMethodId' },
@@ -164,32 +159,40 @@ export class ServiceController {
 
     if (!exists) throw new NotFoundException();
 
-    const validStatus: string[] = [
-      ServiceStatus.Boarding,
-      ServiceStatus.Started,
-    ];
-    const notValidStatus =
-      !validStatus.includes(exists.status) ||
-      (exists.status == ServiceStatus.Started &&
-        service.status == ServiceStatus.Started);
+    if (exists.status != ServiceStatus.Boarding) throw new BadRequestException();
 
-    if (notValidStatus) throw new BadRequestException();
-    if (service.status == ServiceStatus.Started) {
-      this.eventEmitter.emit('service.started', exists);
-      return { message: 'OK' };
-    }
+    this.eventEmitter.emit('service.started', exists);
 
-    const cardPayment = exists.paymentDetails.some(
-      (paymentMethod) => paymentMethod.paymentMethodId.name == 'Card',
-    );
+    return { message: 'Service started' };
+  }
 
-    if (cardPayment && !service.cardId) throw new BadRequestException();
+  @Post('id:/pay')
+  async payService(
+    @Body() service: UpdateServiceDTO,
+    @Req() req: any,
+    @Param('id') id: string,
+  ): Promise<MessageResponseDTO> {
+    const filter = { customerId: req?.body?.user?.id, _id: id };
+    const exists = await this.serviceService.getOneAndPopulate(filter, {
+      path: 'paymentDetails',
+      populate: { path: 'paymentMethodId' },
+    });
+
+    if (!exists) throw new NotFoundException();
+
+    if (exists.status != ServiceStatus.Started) throw new BadRequestException();
+
     if (service.cardId) {
+      const cardPayment = exists.paymentDetails.some(
+        (paymentMethod: any) => paymentMethod.paymentMethodId.name == 'Card',
+      );
       const cardCounter = await this.cardService.count({ _id: service.cardId });
-      if (!cardCounter) throw new NotFoundException();
+
+      if (!cardCounter || !cardPayment) throw new NotFoundException();
     }
 
     this.eventEmitter.emit('service.paid', exists, service.cardId);
+
     return { message: 'Pending' };
   }
 }

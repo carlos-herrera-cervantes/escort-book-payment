@@ -2,8 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ClientKafka } from '@nestjs/microservices';
-import { Service } from '../schemas/service.schema';
+import { ServiceDocument } from '../schemas/service.schema';
 import '../extensions/date.extension';
+import { ServiceStatus } from '../enums/status.enum';
 
 @Injectable()
 export class ServiceStartedListener {
@@ -14,7 +15,7 @@ export class ServiceStartedListener {
   private readonly configService: ConfigService;
 
   @OnEvent('service.started', { async: true })
-  async handleServiceCreated(service: Service): Promise<void> {
+  async handleServiceCreated(service: ServiceDocument): Promise<void> {
     const { _id, timeQuantity, timeMeasurementUnit } = service;
 
     const now = new Date();
@@ -46,5 +47,8 @@ export class ServiceStartedListener {
 
     this.client.emit(topic, JSON.stringify(customerMessage));
     this.client.emit(topic, JSON.stringify(escortMessage));
+
+    service.status = ServiceStatus.Started;
+    await service.save();
   }
 }
