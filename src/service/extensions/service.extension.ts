@@ -1,78 +1,42 @@
-import { CreateServiceDTO } from '../dto/create.dto';
+import { PaymentDetail } from '../../payment/schemas/payment-detail.schema';
+import {
+  EscortProfile,
+} from '../../escort-profile/entities/escort-profile.entity';
+import { ServiceDTO } from '../dto/list.dto';
+import { ServiceDetail } from '../schemas/service-detail.schema';
 import { Service } from '../schemas/service.schema';
-import { Types } from 'mongoose';
-import { PriceService } from '../../price/price.service';
-import { ServiceService } from '../service.service';
-import { TimeUnit } from '../enums/time-unit.enum';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { PaymentMethodCatalog } from '../../payment/schemas/payment-method-catalog.schema';
 
-export {};
-
-declare module '../schemas/service.schema' {
-  interface Service {
-    toService(
-      createServiceDTO: CreateServiceDTO,
-      priceRepository: PriceService,
-      serviceRepository: ServiceService,
-    ): Promise<Service>;
+declare global {
+  interface Object {
+    setDetail(escortProfile: EscortProfile): ServiceDTO;
   }
 }
 
-Service.prototype.toService = async function (
-  createServiceDTO: CreateServiceDTO,
-  priceRepository: PriceService,
-  serviceRepository: ServiceService,
-): Promise<Service> {
-  const {
-    priceId,
-    customerId,
-    escortId,
-    timeQuantity,
-    timeMeasurementUnit,
-    details,
-    paymentDetails,
-  } = createServiceDTO;
-
+Object.prototype.setDetail = function (escortProfile: EscortProfile): ServiceDTO {
   const self = this as Service;
-  const price = await priceRepository.findOne({ where: { id: priceId } });
+  const details = self.details as ServiceDetail[];
+  const paymentDetails = self.paymentDetails as PaymentDetail[];
 
-  if (!price) throw new NotFoundException();
-  if (timeQuantity < price.quantity) throw new BadRequestException();
+  const newServiceDetail = new ServiceDTO();
 
-  self.customerId = new Types.ObjectId(customerId);
-  self.escortId = new Types.ObjectId(escortId);
-  self.timeQuantity = timeQuantity;
-  self.timeMeasurementUnit = timeMeasurementUnit;
+  newServiceDetail._id = self._id;
+  newServiceDetail.escort = `${escortProfile.firstName} ${escortProfile.lastName}`;
+  newServiceDetail.escortId = escortProfile.escortId;
+  newServiceDetail.status = self.status;
+  newServiceDetail.price = self.price;
+  newServiceDetail.timeQuantity = self.timeQuantity;
+  newServiceDetail.timeMeasurementUnit = self.timeMeasurementUnit;
+  newServiceDetail.createdAt = self.createdAt;
+  newServiceDetail.updatedAt = self.updatedAt;
+  newServiceDetail.details = details.map((detail) => ({
+    name: detail.serviceName,
+    cost: detail.cost,
+  }));
+  newServiceDetail.paymentDetails = paymentDetails.map((detail) => {
+    const paymentMethod = detail.paymentMethodId as PaymentMethodCatalog;
+    return { name: paymentMethod.name, quantity: detail.quantity };
+  });
 
-  let totalDetail = 0;
-
-  if (details) {
-    totalDetail = details.reduce(
-      (partialSum, value) => partialSum + value.cost,
-      0,
-    );
-
-    createServiceDTO.details.push({
-      serviceId: priceId,
-      serviceName: 'Time',
-      cost: price.cost,
-    });
-
-    const bulkResult = await serviceRepository.createBatchDetail(details);
-    self.details = bulkResult.map((result) => result._id);
-  }
-
-  self.price =
-    timeMeasurementUnit == TimeUnit.Minutes
-      ? price.cost + totalDetail
-      : timeQuantity * price.cost + totalDetail;
-
-  const totalReceived = paymentDetails.reduce(
-    (partialSum, value) => partialSum + value.quantity,
-    0,
-  );
-
-  if (totalReceived < self.price) throw new BadRequestException();
-
-  return self;
-};
+  return newServiceDetail;
+}
