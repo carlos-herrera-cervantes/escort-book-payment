@@ -19,6 +19,9 @@ export class Service {
   @Prop()
   price: number;
 
+  @Prop()
+  businessCommission: number;
+
   @Prop({ default: ServiceStatus.Boarding })
   status: string;
 

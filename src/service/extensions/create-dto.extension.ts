@@ -32,8 +32,10 @@ CreateServiceDTO.prototype.toService = async function (
   } = self;
   const price = await priceRepository.findOne({ where: { id: priceId } });
 
-  if (!price) throw new NotFoundException();
-  if (timeQuantity < price.quantity) throw new BadRequestException();
+  if (!price) throw new NotFoundException('Price does not exists');
+  if (timeQuantity < price.quantity) {
+    throw new BadRequestException('Invalid time quantity');
+  }
 
   const newService = new Service();
   newService.customerId = new Types.ObjectId(customerId);
@@ -65,6 +67,7 @@ CreateServiceDTO.prototype.toService = async function (
       : timeQuantity * price.cost + totalDetail;
 
   const businessCommission = newService.price.calculatePercentage(10);
+  newService.businessCommission = businessCommission;
 
   const totalReceived = paymentDetails.reduce(
     (partialSum, value) => partialSum + value.quantity,
@@ -72,7 +75,7 @@ CreateServiceDTO.prototype.toService = async function (
   );
 
   if (totalReceived < (newService.price + businessCommission)) {
-    throw new BadRequestException();
+    throw new BadRequestException('Quantity is less than total');
   }
 
   return newService;

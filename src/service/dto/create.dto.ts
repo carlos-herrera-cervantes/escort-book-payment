@@ -67,3 +67,13 @@ export class CreatePaymentDetailDTO {
   @IsNotEmpty()
   quantity: number;
 }
+
+export class PaidServiceEvent {
+  escortId: string;
+  customerId: string;
+  serviceCost: number;
+  businessCommission: number;
+  escortProfit: number;
+  operation: string;
+  paymentMethods: string[];
+}
