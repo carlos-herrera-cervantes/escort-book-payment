@@ -1,20 +1,18 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ClientKafka } from '@nestjs/microservices';
 import { ServiceDocument } from '../schemas/service.schema';
-import '../extensions/date.extension';
 import { ServiceStatus } from '../enums/status.enum';
+import { ServiceEvents } from '../../config/event.config';
+import { KafkaEvents } from '../../config/kafka.config';
+import '../extensions/date.extension';
 
 @Injectable()
 export class ServiceStartedListener {
   @Inject('EscortBookPayment')
-  private readonly client: ClientKafka;
+  private readonly kafkaClient: ClientKafka;
 
-  @Inject(ConfigService)
-  private readonly configService: ConfigService;
-
-  @OnEvent('service.started', { async: true })
+  @OnEvent(ServiceEvents.Started, { async: true })
   async handleServiceCreated(service: ServiceDocument): Promise<void> {
     const { _id, timeQuantity, timeMeasurementUnit } = service;
 
@@ -43,10 +41,9 @@ export class ServiceStartedListener {
       userType: 'Escort',
       scheduleExpression: escortThreshold.toCronExpression(),
     };
-    const topic = this.configService.get<string>('TOPIC');
 
-    this.client.emit(topic, JSON.stringify(customerMessage));
-    this.client.emit(topic, JSON.stringify(escortMessage));
+    this.kafkaClient.emit(KafkaEvents.ServiceStarted, JSON.stringify(customerMessage));
+    this.kafkaClient.emit(KafkaEvents.ServiceStarted, JSON.stringify(escortMessage));
 
     service.status = ServiceStatus.Started;
     await service.save();

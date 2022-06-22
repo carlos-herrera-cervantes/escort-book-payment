@@ -14,6 +14,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ServiceStartedListener } from './listeners/service-started.listener';
 import { CardModule } from '../card/card.module';
 import { PaymentModule } from '../payment/payment.module';
+import { ServicePaidListener } from './listeners/service-paid.listener';
 
 @Module({
   imports: [
@@ -42,7 +43,7 @@ import { PaymentModule } from '../payment/payment.module';
     CardModule,
     PaymentModule,
   ],
-  providers: [ServiceService, ServiceStartedListener],
+  providers: [ServiceService, ServiceStartedListener, ServicePaidListener],
   controllers: [ServiceController],
   exports: [],
 })

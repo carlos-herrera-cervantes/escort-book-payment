@@ -48,6 +48,13 @@ export class PaymentService {
     return this.paymentDetailModel.insertMany(details);
   }
 
+  async getPaymentDetails(
+    filter?: FilterQuery<PaymentDetail>,
+    populateFilter?: any,
+  ): Promise<PaymentDetail[]> {
+    return this.paymentDetailModel.find(filter).populate(populateFilter).lean();
+  }
+
   async getPaymentMethods(
     filter?: FilterQuery<PaymentMethodCatalog>,
   ): Promise<PaymentMethodCatalog[]> {

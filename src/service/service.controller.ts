@@ -28,6 +28,7 @@ import { In } from 'typeorm';
 import { CardService } from '../card/card.service';
 import { MessageResponseDTO } from '../common/dto/message-response.dto';
 import { ServiceStatus } from './enums/status.enum';
+import { ServiceEvents } from '../config/event.config';
 import './extensions/array.extension';
 import './extensions/create-dto.extension';
 import './extensions/service.extension';
@@ -138,7 +139,7 @@ export class ServiceController {
     const created = await this.serviceService.create(newService);
 
     this.eventEmitter.emit(
-      'service.created',
+      ServiceEvents.Created,
       created,
       createServiceDTO.paymentDetails,
     );
@@ -159,14 +160,16 @@ export class ServiceController {
 
     if (!exists) throw new NotFoundException();
 
-    if (exists.status != ServiceStatus.Boarding) throw new BadRequestException();
+    if (exists.status != ServiceStatus.Boarding) {
+      throw new BadRequestException();
+    }
 
-    this.eventEmitter.emit('service.started', exists);
+    this.eventEmitter.emit(ServiceEvents.Started, exists);
 
     return { message: 'Service started' };
   }
 
-  @Post('id:/pay')
+  @Post(':id/pay')
   async payService(
     @Body() service: UpdateServiceDTO,
     @Req() req: any,
@@ -191,7 +194,7 @@ export class ServiceController {
       if (!cardCounter || !cardPayment) throw new NotFoundException();
     }
 
-    this.eventEmitter.emit('service.paid', exists, service.cardId);
+    this.eventEmitter.emit(ServiceEvents.Paid, exists, service.cardId);
 
     return { message: 'Pending' };
   }

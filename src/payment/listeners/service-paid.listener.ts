@@ -5,13 +5,14 @@ import { ServiceDocument } from '../../service/schemas/service.schema';
 import { Types } from 'mongoose';
 import { Payment } from '../schemas/payment.schema';
 import { ServiceStatus } from '../../service/enums/status.enum';
+import { ServiceEvents } from '../../config/event.config';
 
 @Injectable()
 export class ServicePaidListener {
   @Inject(PaymentService)
   private readonly paymentService: PaymentService;
 
-  @OnEvent('service.paid', { async: true })
+  @OnEvent(ServiceEvents.Paid, { async: true })
   async handlePaidService(
     service: ServiceDocument,
     cardId: string,

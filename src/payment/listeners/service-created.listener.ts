@@ -5,13 +5,14 @@ import { CreatePaymentDetailDTO } from '../../service/dto/create.dto';
 import { PaymentService } from '../payment.service';
 import { PaymentDetail } from '../schemas/payment-detail.schema';
 import { Types } from 'mongoose';
+import { ServiceEvents } from '../../config/event.config';
 
 @Injectable()
 export class ServiceCreatedListener {
   @Inject(PaymentService)
   private readonly paymentService: PaymentService;
 
-  @OnEvent('service.created', { async: true })
+  @OnEvent(ServiceEvents.Created, { async: true })
   async handleCreatedService(
     service: ServiceDocument,
     paymentDetails: CreatePaymentDetailDTO[],
