@@ -23,6 +23,9 @@ export class ServicePaidListener {
       return;
     }
 
+    // TODO: Here we need to call the payment gateway for:
+    // 1 - Apply a charge to the customer card
+
     const newPayment = new Payment();
     newPayment.escortId = new Types.ObjectId(service.escortId);
     newPayment.customerId = new Types.ObjectId(service.customerId);
