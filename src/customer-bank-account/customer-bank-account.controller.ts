@@ -25,6 +25,10 @@ export class CustomerBankAccountController {
     @Body() account: CreateCustomerBankAccountDTO,
   ): Promise<CustomerBankAccount> {
     account.customerId = req?.body?.user?.id;
+
+    // TODO: Here we need to call the payment gateway for:
+    // 1 - Register a bank account
+
     return this.customerBankAccountService.create(account);
   }
 
@@ -42,6 +46,9 @@ export class CustomerBankAccountController {
       });
 
     if (!account) throw new NotFoundException();
+
+    // TODO: Here we need to call the payment gateway for:
+    // 1 - Update a bank account
 
     return this.customerBankAccountService.updateOne(newAccount, {
       _id: new Types.ObjectId(id),

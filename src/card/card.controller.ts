@@ -44,6 +44,10 @@ export class CardController {
   @Post()
   async create(@Req() req: any, @Body() card: CreateCardDTO): Promise<Card> {
     const customerId: string = req?.body?.user?.id;
+
+    // TODO: Here we need to call the payment gateway for:
+    // 1 - Register a card
+
     const newCard = new Card();
 
     newCard.token = 'dummy';
@@ -65,6 +69,9 @@ export class CardController {
     const counter = await this.cardService.count({ customerId, _id: id });
 
     if (!counter) throw new NotFoundException();
+
+    // TODO: Here we need to call the payment gateway for:
+    // 1 - Delete a card
 
     await this.cardService.deleteOne({ _id: new Types.ObjectId(id) });
     const remainingCards = await this.cardService.count({ customerId });

@@ -25,6 +25,10 @@ export class EscortBankAccountController {
     @Body() account: CreateEscortBankAccountDTO,
   ): Promise<EscortBankAccount> {
     const escortId: string = req?.body?.user?.id;
+
+    // TODO: Here we need to call the payment gateway for;
+    // 1 - Register a bank account
+
     account.escortId = escortId;
 
     return this.escortBankAccountService.create(account);
@@ -44,6 +48,9 @@ export class EscortBankAccountController {
       });
 
     if (!account) throw new NotFoundException();
+
+    // TODO: Here we need to call the payment gateway for:
+    // 1 - Update a bank acount
 
     return this.escortBankAccountService.updateOne(newAccount, {
       _id: new Types.ObjectId(id),
