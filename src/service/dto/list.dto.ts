@@ -15,6 +15,8 @@ export class ServiceDTO {
 export class ListServiceDTO {
   _id: string;
   escort: string;
+  customerId: string;
+  escortId: string;
   cost: number;
   status: string;
   createdAt: Date;
