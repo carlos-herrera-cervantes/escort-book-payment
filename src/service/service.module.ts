@@ -11,10 +11,9 @@ import {
 } from './schemas/service-detail.schema';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ServiceStartedListener } from './listeners/service-started.listener';
 import { CardModule } from '../card/card.module';
 import { PaymentModule } from '../payment/payment.module';
-import { ServicePaidListener } from './listeners/service-paid.listener';
+import { ServiceListener } from './listeners/service.listener';
 
 @Module({
   imports: [
@@ -43,7 +42,7 @@ import { ServicePaidListener } from './listeners/service-paid.listener';
     CardModule,
     PaymentModule,
   ],
-  providers: [ServiceService, ServiceStartedListener, ServicePaidListener],
+  providers: [ServiceListener, ServiceService],
   controllers: [ServiceController],
   exports: [],
 })

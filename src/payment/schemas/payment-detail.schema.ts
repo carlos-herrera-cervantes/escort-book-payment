@@ -12,7 +12,7 @@ export class PaymentDetail {
   paymentMethodId: PaymentMethodCatalog | Types.ObjectId;
 
   @Prop()
-  serviceId: string;
+  serviceId: Types.ObjectId;
 
   @Prop()
   quantity: number;
