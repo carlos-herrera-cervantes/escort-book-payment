@@ -1,13 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+import { CardEvents } from '../../config/event.config';
 import { PaymentService } from '../payment.service';
 
 @Injectable()
-export class CardCreatedListener {
+export class CardListener {
   @Inject(PaymentService)
   private readonly paymentService: PaymentService;
 
-  @OnEvent('card.created', { async: true })
+  @OnEvent(CardEvents.Created, { async: true })
   async handleCardCreated(customerId: string): Promise<void> {
     const cardPaymentMethod = await this.paymentService.getPaymentMethod({
       name: 'Card',
@@ -23,5 +24,16 @@ export class CardCreatedListener {
       { paymentMethodId: cardPaymentMethod._id, userId: customerId },
     ];
     await this.paymentService.linkPaymentMethods(paymentMethods);
+  }
+
+  @OnEvent(CardEvents.Empty, { async: true })
+  async handleEmptyCards(customerId: string): Promise<void> {
+    const cardPaymentMethod = await this.paymentService.getPaymentMethod({
+      name: 'Card',
+    });
+    await this.paymentService.unlinkPaymentMethod({
+      paymentMethodId: cardPaymentMethod._id,
+      userId: customerId,
+    });
   }
 }

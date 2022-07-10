@@ -24,6 +24,7 @@ export class ServiceService {
     const { offset, limit } = paginate;
     return this.serviceModel
       .find(filter)
+      .sort({ createdAt: -1 })
       .skip(offset * limit)
       .limit(limit);
   }

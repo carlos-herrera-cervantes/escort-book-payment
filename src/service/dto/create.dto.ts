@@ -76,4 +76,5 @@ export class PaidServiceEvent {
   escortProfit: number;
   operation: string;
   paymentMethods: string[];
+  serviceId: string;
 }
