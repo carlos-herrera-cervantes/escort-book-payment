@@ -6,7 +6,7 @@ import { PaymentDetail } from '../../payment/schemas/payment-detail.schema';
 
 export type ServiceDocument = Service & Document;
 
-@Schema({ versionKey: false })
+@Schema({ versionKey: false, collection: 'services' })
 export class Service {
   _id: string;
 

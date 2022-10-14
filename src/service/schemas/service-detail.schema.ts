@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 
 export type ServiceDetailDocument = ServiceDetail & Document;
 
-@Schema({ versionKey: false })
+@Schema({ versionKey: false, collection: 'service_detail' })
 export class ServiceDetail {
   _id: string;
 

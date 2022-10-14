@@ -3,7 +3,7 @@ import { Document, Types, Schema as MongooseSchema } from 'mongoose';
 
 export type CustomerBankAccountDocument = CustomerBankAccount & Document;
 
-@Schema({ versionKey: false })
+@Schema({ versionKey: false, collection: 'customer_bank_accounts' })
 export class CustomerBankAccount {
   _id: string;
 

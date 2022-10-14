@@ -4,7 +4,7 @@ import { PaymentMethodCatalog } from './payment-method-catalog.schema';
 
 export type PaymentUserDocument = PaymentUser & Document;
 
-@Schema({ versionKey: false })
+@Schema({ versionKey: false, collection: 'user_payments' })
 export class PaymentUser {
   _id: string;
 

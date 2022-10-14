@@ -3,7 +3,7 @@ import { Document, Types, Schema as MongooseSchema } from 'mongoose';
 
 export type CardDocument = Card & Document;
 
-@Schema({ versionKey: false })
+@Schema({ versionKey: false, collection: 'cards' })
 export class Card {
   _id: string;
 
