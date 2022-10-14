@@ -41,7 +41,7 @@ export class Service {
   })
   paymentDetails: PaymentDetail[] | Types.ObjectId[];
 
-  @Prop()
+  @Prop({ default: false })
   partialPayment: boolean;
 
   @Prop({ default: new Date().toUTCString() })

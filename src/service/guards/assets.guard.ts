@@ -45,6 +45,6 @@ export class AssetsGuard implements CanActivate {
 
     if (validAssets) return true;
 
-    throw new NotFoundException();
+    throw new NotFoundException('The payment method is not supported by the escort');
   }
 }

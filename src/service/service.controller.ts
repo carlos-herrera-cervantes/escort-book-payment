@@ -23,6 +23,7 @@ import { PriceService } from '../price/price.service';
 import { Pager } from '../common/helpers/pager';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AssetsGuard } from './guards/assets.guard';
+import { CardGuard } from './guards/card.guard';
 import { TimeUnit } from './enums/time-unit.enum';
 import { In } from 'typeorm';
 import { CardService } from '../card/card.service';
@@ -126,6 +127,7 @@ export class ServiceController {
 
   @Post()
   @UseGuards(AssetsGuard)
+  @UseGuards(CardGuard)
   async create(
     @Body() createServiceDTO: CreateServiceDTO,
     @Req() req: any,
