@@ -6,6 +6,7 @@ export class ServiceDTO {
   price: number;
   timeQuantity: number;
   timeMeasurementUnit: string;
+  partialPayment: boolean;
   details: object[];
   paymentDetails: object[];
   createdAt: Date;

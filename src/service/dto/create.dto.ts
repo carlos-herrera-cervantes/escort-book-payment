@@ -66,6 +66,9 @@ export class CreatePaymentDetailDTO {
 
   @IsNotEmpty()
   quantity: number;
+
+  @IsOptional()
+  cardId?: string;
 }
 
 export class PaidServiceEvent {

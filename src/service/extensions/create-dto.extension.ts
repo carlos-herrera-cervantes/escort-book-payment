@@ -58,7 +58,7 @@ CreateServiceDTO.prototype.toService = async function (
     });
 
     const bulkResult = await serviceRepository.createBatchDetail(details);
-    self.details = bulkResult.map((result: any) => result._id);
+    newService.details = bulkResult.map((result: any) => result._id);
   }
 
   newService.price =

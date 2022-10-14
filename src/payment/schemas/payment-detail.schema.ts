@@ -11,8 +11,11 @@ export class PaymentDetail {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'PaymentMethodCatalog' })
   paymentMethodId: PaymentMethodCatalog | Types.ObjectId;
 
-  @Prop()
+  @Prop({ type: MongooseSchema.Types.ObjectId })
   serviceId: Types.ObjectId;
+
+  @Prop({ type: MongooseSchema.Types.ObjectId })
+  cardId?: Types.ObjectId;
 
   @Prop()
   quantity: number;

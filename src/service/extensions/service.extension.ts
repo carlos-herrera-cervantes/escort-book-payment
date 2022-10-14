@@ -27,6 +27,7 @@ Object.prototype.setDetail = function (escortProfile: EscortProfile): ServiceDTO
   newServiceDetail.price = self.price;
   newServiceDetail.timeQuantity = self.timeQuantity;
   newServiceDetail.timeMeasurementUnit = self.timeMeasurementUnit;
+  newServiceDetail.partialPayment = self.partialPayment;
   newServiceDetail.createdAt = self.createdAt;
   newServiceDetail.updatedAt = self.updatedAt;
   newServiceDetail.details = details.map((detail) => ({

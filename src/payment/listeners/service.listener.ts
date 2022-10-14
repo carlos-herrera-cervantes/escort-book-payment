@@ -23,6 +23,7 @@ export class ServiceListener {
       paymentMethodId: new Types.ObjectId(element.paymentMethodId),
       serviceId: new Types.ObjectId(service._id),
       quantity: element.quantity,
+      cardId: element.cardId ? new Types.ObjectId(element.cardId) : null,
     })) as PaymentDetail[];
     const bulkResult = await this.paymentService.createPaymentDetail(details);
 
