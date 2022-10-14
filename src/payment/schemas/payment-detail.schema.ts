@@ -4,7 +4,7 @@ import { PaymentMethodCatalog } from './payment-method-catalog.schema';
 
 export type PaymentDetailDocument = PaymentDetail & Document;
 
-@Schema({ versionKey: false })
+@Schema({ versionKey: false, collection: 'payment_detail' })
 export class PaymentDetail {
   _id: string;
 

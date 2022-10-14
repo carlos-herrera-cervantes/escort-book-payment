@@ -3,7 +3,7 @@ import { Document, Types, Schema as MongooseSchema } from 'mongoose';
 
 export type DevolutionDocument = Devolution & Document;
 
-@Schema({ versionKey: false })
+@Schema({ versionKey: false, collection: 'devolutions' })
 export class Devolution {
   _id: string;
 

@@ -3,7 +3,7 @@ import { Document, Types, Schema as MongooseSchema } from 'mongoose';
 
 export type PaymentDocument = Payment & Document;
 
-@Schema({ versionKey: false })
+@Schema({ versionKey: false, collection: 'payments' })
 export class Payment {
   _id: string;
 
