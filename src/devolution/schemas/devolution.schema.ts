@@ -22,11 +22,11 @@ export class Devolution {
   @Prop()
   logResponse: string;
 
-  @Prop({ default: new Date().toUTCString() })
-  createdAt: Date;
+  @Prop()
+  createdAt: Date = new Date();
 
-  @Prop({ default: new Date().toUTCString() })
-  updateAt: Date;
+  @Prop()
+  updateAt: Date = new Date();
 }
 
 export const DevolutionSchema = SchemaFactory.createForClass(Devolution);

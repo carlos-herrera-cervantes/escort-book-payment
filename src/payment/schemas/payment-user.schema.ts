@@ -14,11 +14,11 @@ export class PaymentUser {
   @Prop({ type: MongooseSchema.Types.ObjectId })
   userId: Types.ObjectId;
 
-  @Prop({ default: new Date().toUTCString() })
-  createdAt: Date;
+  @Prop()
+  createdAt: Date = new Date();
 
-  @Prop({ default: new Date().toUTCString() })
-  updateAt: Date;
+  @Prop()
+  updateAt: Date = new Date();
 }
 
 export const PaymentUserSchema = SchemaFactory.createForClass(PaymentUser);

@@ -25,11 +25,11 @@ export class Card {
   @Prop()
   alias: string;
 
-  @Prop({ default: new Date().toUTCString() })
-  createdAt: Date;
+  @Prop()
+  createdAt: Date = new Date();
 
-  @Prop({ default: new Date().toUTCString() })
-  updateAt: Date;
+  @Prop()
+  updateAt: Date = new Date();
 }
 
 export const CardSchema = SchemaFactory.createForClass(Card);

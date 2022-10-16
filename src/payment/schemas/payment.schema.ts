@@ -25,11 +25,11 @@ export class Payment {
   @Prop()
   logResponse: string;
 
-  @Prop({ default: new Date().toUTCString() })
-  createdAt: Date;
+  @Prop()
+  createdAt: Date = new Date();
 
-  @Prop({ default: new Date().toUTCString() })
-  updateAt: Date;
+  @Prop()
+  updateAt: Date = new Date();
 }
 
 export const PaymentSchema = SchemaFactory.createForClass(Payment);

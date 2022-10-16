@@ -16,11 +16,15 @@ export class ServiceDetail {
   @Prop()
   cost: number;
 
-  @Prop({ default: new Date().toUTCString() })
-  createdAt: Date;
+  @Prop()
+  createdAt: Date = new Date();
 
-  @Prop({ default: new Date().toUTCString() })
-  updatedAt: Date;
+  @Prop()
+  updatedAt: Date = new Date();
 }
 
 export const ServiceDetailSchema = SchemaFactory.createForClass(ServiceDetail);
+
+ServiceDetailSchema.pre<ServiceDetailDocument>('save', function () {
+  this.updatedAt = new Date();
+});

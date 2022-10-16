@@ -10,6 +10,7 @@ import {
   NotFoundException,
   UseGuards,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { EscortProfileService } from '../escort-profile/escort-profile.service';
 import { PaginateDTO } from '../common/dto/query-param.dto';
@@ -154,13 +155,18 @@ export class ServiceController {
     @Req() req: any,
     @Param('id') id: string,
   ): Promise<MessageResponseDTO> {
-    const filter = { escortId: req?.body?.user?.id, _id: id };
+    const escortId = req?.body?.user?.id;
+    const filter = { escortId, _id: id };
     const exists = await this.serviceService.getOneAndPopulate(filter, {
       path: 'paymentDetails',
       populate: { path: 'paymentMethodId' },
     });
 
-    if (!exists) throw new NotFoundException();
+    if (!exists) throw new NotFoundException('Service not found');
+
+    if (escortId != exists.escortId.toString()) {
+      throw new ForbiddenException('Escort does not correspond with the service');
+    }
 
     if (exists.status != ServiceStatus.Boarding) {
       throw new BadRequestException();
@@ -183,9 +189,11 @@ export class ServiceController {
       populate: { path: 'paymentMethodId' },
     });
 
-    if (!exists) throw new NotFoundException();
+    if (!exists) throw new NotFoundException('Service not found');
 
-    if (exists.status != ServiceStatus.Started) throw new BadRequestException();
+    if (exists.status != ServiceStatus.Started) {
+      throw new BadRequestException('Service is not started');
+    }
 
     if (service.cardId) {
       const cardPayment = exists.paymentDetails.some(
@@ -193,7 +201,9 @@ export class ServiceController {
       );
       const cardCounter = await this.cardService.count({ _id: service.cardId });
 
-      if (!cardCounter || !cardPayment) throw new NotFoundException();
+      if (!cardCounter || !cardPayment) {
+        throw new NotFoundException('Card not found');
+      }
     }
 
     this.eventEmitter.emit(ServiceEvents.Paid, exists, service.cardId);
