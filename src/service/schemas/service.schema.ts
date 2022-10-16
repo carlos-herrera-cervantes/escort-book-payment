@@ -44,11 +44,15 @@ export class Service {
   @Prop({ default: false })
   partialPayment: boolean;
 
-  @Prop({ default: new Date().toUTCString() })
-  createdAt: Date;
+  @Prop()
+  createdAt: Date = new Date();
 
-  @Prop({ default: new Date().toUTCString() })
-  updatedAt: Date;
+  @Prop()
+  updatedAt: Date = new Date();
 }
 
 export const ServiceSchema = SchemaFactory.createForClass(Service);
+
+ServiceSchema.pre<ServiceDocument>('save', function () {
+  this.updatedAt = new Date();
+});

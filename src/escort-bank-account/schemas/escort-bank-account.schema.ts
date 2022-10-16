@@ -13,11 +13,11 @@ export class EscortBankAccount {
   @Prop()
   clabe: string;
 
-  @Prop({ default: new Date().toUTCString() })
-  createdAt: Date;
+  @Prop()
+  createdAt: Date = new Date();
 
-  @Prop({ default: new Date().toUTCString() })
-  updateAt: Date;
+  @Prop()
+  updateAt: Date = new Date();
 }
 
 export const EscortBankAccountSchema =
