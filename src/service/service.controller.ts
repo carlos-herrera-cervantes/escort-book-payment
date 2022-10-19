@@ -66,14 +66,11 @@ export class ServiceController {
 
     const [services, totalDocs] = await Promise.all([
       this.serviceService.getByPagination(paginate, filter),
-      this.serviceService.count({ filter }),
+      this.serviceService.count(filter),
     ]);
+    const data = await services.setEscortProfile(this.escortProfileService);
 
-    return new Pager().getPager(
-      paginate,
-      totalDocs,
-      await services.setEscortProfile(this.escortProfileService),
-    );
+    return new Pager().getPager(paginate, totalDocs, data);
   }
 
   @Get(':id')
