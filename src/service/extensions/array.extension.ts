@@ -1,19 +1,13 @@
 import { EscortProfileService } from '../../escort-profile/escort-profile.service';
 import { ListServiceDTO } from '../dto/list.dto';
 
-export {};
-
 declare global {
   interface Array<T> {
-    setEscortProfile(
-      escortProfileService: EscortProfileService,
-    ): Promise<ListServiceDTO[]>;
+    setEscortProfile(escortProfileService: EscortProfileService): Promise<ListServiceDTO[]>;
   }
 }
 
-Array.prototype.setEscortProfile = async function (
-  escortProfileService: EscortProfileService,
-): Promise<ListServiceDTO[]> {
+Array.prototype.setEscortProfile = async function (escortProfileService: EscortProfileService): Promise<ListServiceDTO[]> {
   const listServiceDTO = [];
 
   for (const service of this) {

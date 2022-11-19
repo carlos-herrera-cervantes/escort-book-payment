@@ -1,7 +1,5 @@
 import { TimeUnit } from '../enums/time-unit.enum';
 
-export {};
-
 declare global {
   interface Date {
     addServiceTime(quantity: number, timeUnit: string, now: Date): Date;
@@ -9,11 +7,7 @@ declare global {
   }
 }
 
-Date.prototype.addServiceTime = function (
-  quantity: number,
-  timeUnit: string,
-  now: Date,
-): Date {
+Date.prototype.addServiceTime = function(quantity: number, timeUnit: string, now: Date): Date {
   const self = this as Date;
 
   if (timeUnit == TimeUnit.Minutes) {
@@ -31,7 +25,7 @@ Date.prototype.addServiceTime = function (
   return self;
 };
 
-Date.prototype.toCronExpression = function (): string {
+Date.prototype.toCronExpression = function(): string {
   const self = this as Date;
 
   const minutes = self.getMinutes();

@@ -9,17 +9,11 @@ import '../../common/extensions/number.extensions';
 
 declare module '../dto/create.dto' {
   interface CreateServiceDTO {
-    toService(
-      priceRepository: PriceService,
-      serviceRepository: ServiceService,
-    ): Promise<Service>;
+    toService(priceRepository: PriceService, serviceRepository: ServiceService): Promise<Service>;
   }
 }
 
-CreateServiceDTO.prototype.toService = async function (
-  priceRepository: PriceService,
-  serviceRepository: ServiceService,
-): Promise<Service> {
+CreateServiceDTO.prototype.toService = async function(priceRepository: PriceService, serviceRepository: ServiceService): Promise<Service> {
   const self = this as CreateServiceDTO;
   const {
     priceId,
@@ -46,10 +40,7 @@ CreateServiceDTO.prototype.toService = async function (
   let totalDetail = 0;
 
   if (details) {
-    totalDetail = details.reduce(
-      (partialSum, value) => partialSum + value.cost,
-      0,
-    );
+    totalDetail = details.reduce((partialSum, value) => partialSum + value.cost, 0);
 
     self.details.push({
       serviceId: priceId,
@@ -61,18 +52,14 @@ CreateServiceDTO.prototype.toService = async function (
     newService.details = bulkResult.map((result: any) => result._id);
   }
 
-  newService.price =
-    timeMeasurementUnit == TimeUnit.Minutes
-      ? price.cost + totalDetail
-      : timeQuantity * price.cost + totalDetail;
+  newService.price = timeMeasurementUnit == TimeUnit.Minutes
+    ? price.cost + totalDetail
+    : timeQuantity * price.cost + totalDetail;
 
   const businessCommission = newService.price.calculatePercentage(10);
   newService.businessCommission = businessCommission;
 
-  const totalReceived = paymentDetails.reduce(
-    (partialSum, value) => partialSum + value.quantity,
-    0,
-  );
+  const totalReceived = paymentDetails.reduce((partialSum, value) => partialSum + value.quantity, 0);
 
   if (totalReceived < (newService.price + businessCommission)) {
     throw new BadRequestException('Quantity is less than total');

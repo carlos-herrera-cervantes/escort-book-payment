@@ -21,10 +21,17 @@ export class PaymentDetail {
   quantity: number;
 
   @Prop()
-  createdAt: Date = new Date();
+  createdAt: Date;
 
   @Prop()
-  updateAt: Date = new Date();
+  updatedAt: Date;
 }
 
 export const PaymentDetailSchema = SchemaFactory.createForClass(PaymentDetail);
+
+PaymentDetailSchema.pre<PaymentDetailDocument>('save', function () {
+  if (this.isNew) {
+    this.createdAt = new Date();
+    this.updatedAt = new Date();
+  }
+});

@@ -45,32 +45,23 @@ export class PaymentController {
   }
 
   @Get('methods/:id/user')
-  async getLinkedPaymentMethodsByUser(
-    @Param('id') id: string,
-  ): Promise<PaymentUser> {
+  async getLinkedPaymentMethodsByUser(@Param('id') id: string): Promise<PaymentUser> {
     const filter = { userId: id };
     const populateFilter = { path: 'paymentMethodId' };
     return this.paymentService.getLinkedPaymentMethods(filter, populateFilter);
   }
 
   @Post('methods')
-  async createPaymentMethod(
-    @Body() paymentMethod: CreatePaymentMethodCatalogDTO,
-  ): Promise<PaymentMethodCatalog> {
-    return this.paymentService
-      .createPaymentMethod(paymentMethod)
-      .catch((err) => {
-        if (err.code == 11000) throw new ConflictException();
-        throw err;
-      });
+  async createPaymentMethod(@Body() paymentMethod: CreatePaymentMethodCatalogDTO): Promise<PaymentMethodCatalog> {
+    return this.paymentService.createPaymentMethod(paymentMethod).catch((err) => {
+      if (err.code == 11000) throw new ConflictException();
+      throw err;
+    });
   }
 
   @Post('link')
   @UseGuards(LinkPaymentMethodsGuard)
-  async linkPaymentMethods(
-    @Req() req: any,
-    @Body() body: MethodsDTO,
-  ): Promise<MessageResponseDTO> {
+  async linkPaymentMethods(@Req() req: any, @Body() body: MethodsDTO): Promise<MessageResponseDTO> {
     const linkPayments = body.methods.map((element) => ({
       userId: req?.body?.user?.id,
       paymentMethodId: element,

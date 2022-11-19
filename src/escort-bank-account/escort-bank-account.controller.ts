@@ -20,10 +20,7 @@ export class EscortBankAccountController {
   private readonly escortBankAccountService: EscortBankAccountService;
 
   @Post()
-  async create(
-    @Req() req: any,
-    @Body() account: CreateEscortBankAccountDTO,
-  ): Promise<EscortBankAccount> {
+  async create(@Req() req: any, @Body() account: CreateEscortBankAccountDTO): Promise<EscortBankAccount> {
     const escortId: string = req?.body?.user?.id;
 
     // TODO: Here we need to call the payment gateway for;
@@ -41,11 +38,10 @@ export class EscortBankAccountController {
     @Body() newAccount: UpdateEscortBankAccountDTO,
   ): Promise<EscortBankAccount> {
     const customerId: string = req?.body?.user?.id;
-    const account: EscortBankAccount =
-      await this.escortBankAccountService.getOne({
-        _id: new Types.ObjectId(id),
-        customerId: new Types.ObjectId(customerId),
-      });
+    const account: EscortBankAccount = await this.escortBankAccountService.getOne({
+      _id: new Types.ObjectId(id),
+      customerId: new Types.ObjectId(customerId),
+    });
 
     if (!account) throw new NotFoundException();
 

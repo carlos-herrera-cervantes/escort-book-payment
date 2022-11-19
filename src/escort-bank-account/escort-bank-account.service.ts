@@ -13,15 +13,11 @@ export class EscortBankAccountService {
   @InjectModel(EscortBankAccount.name)
   private readonly escortBankAccountModel: Model<EscortBankAccountDocument>;
 
-  async getOne(
-    filter?: FilterQuery<EscortBankAccount>,
-  ): Promise<EscortBankAccount> {
+  async getOne(filter?: FilterQuery<EscortBankAccount>): Promise<EscortBankAccount> {
     return this.escortBankAccountModel.findOne(filter).lean();
   }
 
-  async create(
-    account: CreateEscortBankAccountDTO,
-  ): Promise<EscortBankAccount> {
+  async create(account: CreateEscortBankAccountDTO): Promise<EscortBankAccount> {
     return this.escortBankAccountModel.create(account);
   }
 
@@ -29,11 +25,11 @@ export class EscortBankAccountService {
     account: UpdateEscortBankAccountDTO,
     filter?: FilterQuery<EscortBankAccount>,
   ): Promise<EscortBankAccount> {
-    const doc = await this.escortBankAccountModel.findOneAndUpdate(
-      filter,
-      { $set: account },
-      { new: true },
-    );
+    const doc = await this.escortBankAccountModel.findOneAndUpdate(filter, {
+      $set: account
+    }, {
+      new: true
+    });
     await doc.save();
     return doc;
   }
