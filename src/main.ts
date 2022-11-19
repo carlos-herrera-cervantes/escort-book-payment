@@ -6,13 +6,11 @@ import { transformErrors } from './common/helpers/error-transformer';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      transformOptions: { enableImplicitConversion: true },
-      exceptionFactory: transformErrors,
-    }),
-  );
+  app.useGlobalPipes(new ValidationPipe({
+    transform: true,
+    transformOptions: { enableImplicitConversion: true },
+    exceptionFactory: transformErrors,
+  }));
 
   await app.listen(process.env.PORT);
 }

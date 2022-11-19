@@ -14,14 +14,19 @@ export class CustomerBankAccount {
   clabe: string;
 
   @Prop()
-  createdAt: Date = new Date();
+  createdAt: Date;
 
   @Prop()
-  updateAt: Date = new Date();
+  updatedAt: Date;
 }
 
 export const CustomerBankAccountSchema = SchemaFactory.createForClass(CustomerBankAccount);
 
 CustomerBankAccountSchema.pre<CustomerBankAccountDocument>('save', function () {
   this.clabe = this.clabe.replace(/.(?=.{4})/g, 'X');
+
+  if (this.isNew) {
+    this.createdAt = new Date();
+    this.updatedAt = new Date();
+  }
 });

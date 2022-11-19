@@ -39,11 +39,10 @@ export class CustomerBankAccountController {
     @Body() newAccount: UpdateCustomerBankAccountDTO,
   ): Promise<CustomerBankAccount> {
     const customerId: string = req?.body?.user?.id;
-    const account: CustomerBankAccount =
-      await this.customerBankAccountService.getOne({
-        _id: new Types.ObjectId(id),
-        customerId: new Types.ObjectId(customerId),
-      });
+    const account: CustomerBankAccount = await this.customerBankAccountService.getOne({
+      _id: new Types.ObjectId(id),
+      customerId: new Types.ObjectId(customerId),
+    });
 
     if (!account) throw new NotFoundException();
 

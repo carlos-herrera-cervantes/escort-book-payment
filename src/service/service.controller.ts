@@ -54,15 +54,11 @@ export class ServiceController {
   private readonly cardService: CardService;
 
   @Get()
-  async getByPagination(
-    @Query() paginate: PaginateDTO,
-    @Req() req: any,
-  ): Promise<Pager> {
+  async getByPagination(@Query() paginate: PaginateDTO, @Req() req: any): Promise<Pager> {
     const user = req?.body?.user;
-    const filter =
-      user?.type == 'Customer'
-        ? { customerId: new Types.ObjectId(user.id) }
-        : { escortId: new Types.ObjectId(user.id) };
+    const filter = user?.type == 'Customer'
+      ? { customerId: new Types.ObjectId(user.id) }
+      : { escortId: new Types.ObjectId(user.id) };
 
     const [services, totalDocs] = await Promise.all([
       this.serviceService.getByPagination(paginate, filter),
@@ -92,11 +88,8 @@ export class ServiceController {
   }
 
   @Post('total')
-  async calculateTotal(
-    @Body() calculateTotal: CalculateTotalServiceDTO,
-  ): Promise<ListTotalDTO> {
-    const { priceId, timeQuantity, details, timeMeasurementUnit } =
-      calculateTotal;
+  async calculateTotal(@Body() calculateTotal: CalculateTotalServiceDTO): Promise<ListTotalDTO> {
+    const { priceId, timeQuantity, details, timeMeasurementUnit } = calculateTotal;
     const price = await this.priceService.findOne({ where: { id: priceId } });
 
     if (!price) throw new NotFoundException();
@@ -109,14 +102,10 @@ export class ServiceController {
 
     if (priceCounter != serviceIds.length) throw new NotFoundException();
 
-    const totalDetail = details.reduce(
-      (partialSum, value) => partialSum + value.cost,
-      0,
-    );
-    const total =
-      timeMeasurementUnit == TimeUnit.Minutes
-        ? price.cost + totalDetail
-        : timeQuantity * price.cost + totalDetail;
+    const totalDetail = details.reduce((partialSum, value) => partialSum + value.cost, 0);
+    const total = timeMeasurementUnit == TimeUnit.Minutes
+      ? price.cost + totalDetail
+      : timeQuantity * price.cost + totalDetail;
 
     const businessCommission = total.calculatePercentage(10);
 
@@ -126,32 +115,19 @@ export class ServiceController {
   @Post()
   @UseGuards(AssetsGuard)
   @UseGuards(CardGuard)
-  async create(
-    @Body() createServiceDTO: CreateServiceDTO,
-    @Req() req: any,
-  ): Promise<Service> {
+  async create(@Body() createServiceDTO: CreateServiceDTO, @Req() req: any): Promise<Service> {
     createServiceDTO.customerId = req?.body?.user?.id;
 
-    const newService = await createServiceDTO.toService(
-      this.priceService,
-      this.serviceService,
-    );
+    const newService = await createServiceDTO.toService(this.priceService, this.serviceService);
     const created = await this.serviceService.create(newService);
 
-    this.eventEmitter.emit(
-      ServiceEvents.Created,
-      created,
-      createServiceDTO.paymentDetails,
-    );
+    this.eventEmitter.emit(ServiceEvents.Created, created, createServiceDTO.paymentDetails);
 
     return created;
   }
 
   @Post(':id/start')
-  async startService(
-    @Req() req: any,
-    @Param('id') id: string,
-  ): Promise<MessageResponseDTO> {
+  async startService(@Req() req: any, @Param('id') id: string): Promise<MessageResponseDTO> {
     const escortId = req?.body?.user?.id;
     const filter = { escortId, _id: id };
     const exists = await this.serviceService.getOneAndPopulate(filter, {
@@ -193,9 +169,8 @@ export class ServiceController {
     }
 
     if (service.cardId) {
-      const cardPayment = exists.paymentDetails.some(
-        (paymentMethod: any) => paymentMethod.paymentMethodId.name == 'Card',
-      );
+      const cardPayment = exists.paymentDetails.some((paymentMethod: any) =>
+        paymentMethod.paymentMethodId.name == 'Card');
       const cardCounter = await this.cardService.count({ _id: service.cardId });
 
       if (!cardCounter || !cardPayment) {

@@ -16,9 +16,7 @@ export class PriceService {
     return this.priceRepository.findOne(filter);
   }
 
-  async countPriceDetail(
-    filter?: FindOneOptions<PriceDetail>,
-  ): Promise<number> {
+  async countPriceDetail(filter?: FindOneOptions<PriceDetail>): Promise<number> {
     return this.priceDetailRepository.count(filter);
   }
 }

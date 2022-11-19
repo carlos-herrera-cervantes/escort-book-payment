@@ -23,10 +23,17 @@ export class Devolution {
   logResponse: string;
 
   @Prop()
-  createdAt: Date = new Date();
+  createdAt: Date;
 
   @Prop()
-  updateAt: Date = new Date();
+  updatedAt: Date;
 }
 
 export const DevolutionSchema = SchemaFactory.createForClass(Devolution);
+
+DevolutionSchema.pre<DevolutionDocument>('save', function () {
+  if (this.isNew) {
+    this.createdAt = new Date();
+    this.updatedAt = new Date();
+  }
+});

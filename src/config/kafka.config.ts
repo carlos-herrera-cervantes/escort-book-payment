@@ -3,3 +3,5 @@ export enum KafkaEvents {
   ServiceStarted = 'service-started',
   ServiceCreated = 'service-created',
 }
+
+export const KAFKA_BROKERS = process.env.BROKERS;

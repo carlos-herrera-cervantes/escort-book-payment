@@ -38,9 +38,7 @@ export class PaymentService {
     return this.paymentModel.create(payment);
   }
 
-  async createPaymentMethod(
-    paymentMethodCatalog: CreatePaymentMethodCatalogDTO,
-  ): Promise<PaymentMethodCatalog> {
+  async createPaymentMethod(paymentMethodCatalog: CreatePaymentMethodCatalogDTO): Promise<PaymentMethodCatalog> {
     return this.paymentMethodCatalogModel.create(paymentMethodCatalog);
   }
 
@@ -48,35 +46,23 @@ export class PaymentService {
     return this.paymentDetailModel.insertMany(details);
   }
 
-  async getPaymentDetails(
-    filter?: FilterQuery<PaymentDetail>,
-    populateFilter?: any,
-  ): Promise<PaymentDetail[]> {
+  async getPaymentDetails(filter?: FilterQuery<PaymentDetail>, populateFilter?: any): Promise<PaymentDetail[]> {
     return this.paymentDetailModel.find(filter).populate(populateFilter).lean();
   }
 
-  async getPaymentMethods(
-    filter?: FilterQuery<PaymentMethodCatalog>,
-  ): Promise<PaymentMethodCatalog[]> {
+  async getPaymentMethods(filter?: FilterQuery<PaymentMethodCatalog>): Promise<PaymentMethodCatalog[]> {
     return this.paymentMethodCatalogModel.find(filter).lean();
   }
 
-  async getPaymentMethod(
-    filter?: FilterQuery<PaymentMethodCatalog>,
-  ): Promise<PaymentMethodCatalog> {
+  async getPaymentMethod(filter?: FilterQuery<PaymentMethodCatalog>): Promise<PaymentMethodCatalog> {
     return this.paymentMethodCatalogModel.findOne(filter);
   }
 
-  async getLinkedPaymentMethods(
-    filter?: FilterQuery<PaymentUser>,
-    populateFilter?: any,
-  ): Promise<PaymentUser> {
+  async getLinkedPaymentMethods(filter?: FilterQuery<PaymentUser>, populateFilter?: any): Promise<PaymentUser> {
     return this.paymentUserModel.find(filter).populate(populateFilter).lean();
   }
 
-  async softDeletePaymentMethod(
-    filter?: FilterQuery<PaymentMethodCatalog>,
-  ): Promise<void> {
+  async softDeletePaymentMethod(filter?: FilterQuery<PaymentMethodCatalog>): Promise<void> {
     const paymentMethod = await this.paymentMethodCatalogModel.findOne(filter);
 
     if (!paymentMethod) return;
@@ -85,9 +71,7 @@ export class PaymentService {
     await paymentMethod.save();
   }
 
-  async linkPaymentMethods(
-    paymentMethods: CreatePaymentUserDTO[],
-  ): Promise<PaymentUser[]> {
+  async linkPaymentMethods(paymentMethods: CreatePaymentUserDTO[]): Promise<PaymentUser[]> {
     return this.paymentUserModel.create(paymentMethods);
   }
 
@@ -95,15 +79,11 @@ export class PaymentService {
     await this.paymentUserModel.findOneAndDelete(filter);
   }
 
-  async countLinkedPaymentMethods(
-    filter?: FilterQuery<PaymentUser>,
-  ): Promise<number> {
+  async countLinkedPaymentMethods(filter?: FilterQuery<PaymentUser>): Promise<number> {
     return this.paymentUserModel.count(filter);
   }
 
-  async countPaymentMethods(
-    filter?: FilterQuery<PaymentMethodCatalog>,
-  ): Promise<number> {
+  async countPaymentMethods(filter?: FilterQuery<PaymentMethodCatalog>): Promise<number> {
     return this.paymentMethodCatalogModel.count(filter);
   }
 }

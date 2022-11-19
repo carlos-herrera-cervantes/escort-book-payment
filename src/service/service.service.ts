@@ -17,10 +17,7 @@ export class ServiceService {
   @InjectModel(ServiceDetail.name)
   private readonly serviceDetailModel: Model<ServiceDetailDocument>;
 
-  async getByPagination(
-    paginate: PaginateDTO,
-    filter?: FilterQuery<Service>,
-  ): Promise<Service[]> {
+  async getByPagination(paginate: PaginateDTO, filter?: FilterQuery<Service>): Promise<Service[]> {
     const { offset, limit } = paginate;
     return this.serviceModel
       .find(filter)
@@ -29,10 +26,7 @@ export class ServiceService {
       .limit(limit);
   }
 
-  async getOneAndPopulate(
-    filter: FilterQuery<Service>,
-    ...populateFilter: any
-  ): Promise<Service> {
+  async getOneAndPopulate(filter: FilterQuery<Service>, ...populateFilter: any): Promise<Service> {
     const query = this.serviceModel.findOne(filter);
     populateFilter.forEach((filter: object) => query.populate(filter));
     return query;

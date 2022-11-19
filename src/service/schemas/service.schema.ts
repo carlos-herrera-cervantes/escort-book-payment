@@ -45,14 +45,19 @@ export class Service {
   partialPayment: boolean;
 
   @Prop()
-  createdAt: Date = new Date();
+  createdAt: Date;
 
   @Prop()
-  updatedAt: Date = new Date();
+  updatedAt: Date;
 }
 
 export const ServiceSchema = SchemaFactory.createForClass(Service);
 
 ServiceSchema.pre<ServiceDocument>('save', function () {
+  if (this.isNew) {
+    this.createdAt = new Date();
+    this.updatedAt = new Date();
+  }
+
   this.updatedAt = new Date();
 });

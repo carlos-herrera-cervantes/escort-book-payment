@@ -26,14 +26,19 @@ export class Card {
   alias: string;
 
   @Prop()
-  createdAt: Date = new Date();
+  createdAt: Date;
 
   @Prop()
-  updateAt: Date = new Date();
+  updatedAt: Date;
 }
 
 export const CardSchema = SchemaFactory.createForClass(Card);
 
 CardSchema.pre<CardDocument>('save', function () {
   this.numbers = this.numbers.replace(/.(?=.{4})/g, 'X');
+  
+  if (this.isNew) {
+    this.createdAt = new Date();
+    this.updatedAt = new Date();
+  }
 });

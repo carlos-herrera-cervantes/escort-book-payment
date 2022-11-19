@@ -15,10 +15,17 @@ export class PaymentUser {
   userId: Types.ObjectId;
 
   @Prop()
-  createdAt: Date = new Date();
+  createdAt: Date;
 
   @Prop()
-  updateAt: Date = new Date();
+  updatedAt: Date;
 }
 
 export const PaymentUserSchema = SchemaFactory.createForClass(PaymentUser);
+
+PaymentUserSchema.pre<PaymentUserDocument>('save', function () {
+  if (this.isNew) {
+    this.createdAt = new Date();
+    this.updatedAt = new Date();
+  }
+});

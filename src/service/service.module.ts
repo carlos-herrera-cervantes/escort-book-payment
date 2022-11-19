@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { PriceModule } from '../price/price.module';
 import { EscortProfileModule } from '../escort-profile/escort-profile.module';
 import { Service, ServiceSchema } from './schemas/service.schema';
@@ -9,29 +10,21 @@ import {
   ServiceDetail,
   ServiceDetailSchema,
 } from './schemas/service-detail.schema';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CardModule } from '../card/card.module';
 import { PaymentModule } from '../payment/payment.module';
 import { ServiceListener } from './listeners/service.listener';
+import { KAFKA_BROKERS } from '../config/kafka.config';
 
 @Module({
   imports: [
-    ClientsModule.registerAsync([
+    ClientsModule.register([
       {
         name: 'EscortBookPayment',
-        imports: [ConfigModule],
-        inject: [ConfigService],
-        useFactory: async (configService: ConfigService) => ({
-          transport: Transport.KAFKA,
-          options: {
-            client: {
-              clientId: 'Payment',
-              brokers: [configService.get<string>('BROKERS')],
-            },
-          },
-        }),
-      },
+        transport: Transport.KAFKA,
+        options: {
+          client: { clientId: 'Payment', brokers: [KAFKA_BROKERS] },
+        },
+      }
     ]),
     MongooseModule.forFeature([
       { name: Service.name, schema: ServiceSchema },

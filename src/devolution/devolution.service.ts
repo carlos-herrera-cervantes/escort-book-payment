@@ -14,10 +14,7 @@ export class DevolutionService {
     return this.devolutionModel.find(filter).lean();
   }
 
-  async getByPagination(
-    paginate: PaginateDTO,
-    filter?: FilterQuery<Devolution>,
-  ): Promise<Devolution[]> {
+  async getByPagination(paginate: PaginateDTO, filter?: FilterQuery<Devolution>): Promise<Devolution[]> {
     const { offset, limit } = paginate;
     return this.devolutionModel
       .find(filter)

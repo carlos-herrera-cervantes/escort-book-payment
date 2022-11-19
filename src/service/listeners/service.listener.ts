@@ -27,10 +27,11 @@ export class ServiceListener {
       escortId, customerId, price, paymentDetails, businessCommission, _id
     } = service;
 
-    const paymentMethods = await this.paymentService.getPaymentDetails(
-      { _id: { $in: paymentDetails } },
-      { path: 'paymentMethodId' },
-    );
+    const paymentMethods = await this.paymentService.getPaymentDetails({
+      _id: { $in: paymentDetails }
+    }, {
+      path: 'paymentMethodId'
+    });
     const paymentNames = paymentMethods.map((method: PaymentDetail) => {
       const catalog = method.paymentMethodId as PaymentMethodCatalog;
       return catalog.name;
@@ -47,27 +48,15 @@ export class ServiceListener {
       serviceId: _id,
     };
 
-    this.kafkaClient.emit(
-      KafkaEvents.OperationStatistics,
-      JSON.stringify(paidServiceEvent),
-    );
+    this.kafkaClient.emit(KafkaEvents.OperationStatistics, JSON.stringify(paidServiceEvent));
   }
 
   @OnEvent(ServiceEvents.Started, { async: true })
   async handlerStartedService(service: ServiceDocument): Promise<void> {
     const { _id, timeQuantity, timeMeasurementUnit } = service;
-
     const now = new Date();
-    const escortThreshold = new Date(now).addServiceTime(
-      timeQuantity,
-      timeMeasurementUnit,
-      now,
-    );
-    const customerThreshold = new Date(now).addServiceTime(
-      timeQuantity,
-      timeMeasurementUnit,
-      now,
-    );
+    const escortThreshold = new Date(now).addServiceTime(timeQuantity, timeMeasurementUnit, now);
+    const customerThreshold = new Date(now).addServiceTime(timeQuantity, timeMeasurementUnit, now);
 
     escortThreshold.setHours(escortThreshold.getHours() + 1);
     customerThreshold.setMinutes(customerThreshold.getMinutes() + 50);

@@ -24,22 +24,18 @@ export class AssetsGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const { body } = context.switchToHttp().getRequest();
     const serviceIds = body.details.map((element) => element.serviceId);
-    const paymentIds = body.paymentDetails.map(
-      (element) => element.paymentMethodId,
-    );
+    const paymentIds = body.paymentDetails.map((element) => element.paymentMethodId);
 
-    const [escortCounter, priceCounter, paymentMethodsCounter] =
-      await Promise.all([
-        this.escortProfileService.count({ where: { escortId: body.escortId } }),
-        this.priceService.countPriceDetail({ where: { id: In(serviceIds) } }),
-        this.paymentService.countLinkedPaymentMethods({
-          userId: body.escortId,
-          paymentMethodId: { $in: paymentIds },
-        }),
-      ]);
+    const [escortCounter, priceCounter, paymentMethodsCounter] = await Promise.all([
+      this.escortProfileService.count({ where: { escortId: body.escortId } }),
+      this.priceService.countPriceDetail({ where: { id: In(serviceIds) } }),
+      this.paymentService.countLinkedPaymentMethods({
+        userId: body.escortId,
+        paymentMethodId: { $in: paymentIds }
+      }),
+    ]);
 
-    const validAssets =
-      escortCounter &&
+    const validAssets = escortCounter &&
       priceCounter == serviceIds.length &&
       paymentMethodsCounter == paymentIds.length;
 
