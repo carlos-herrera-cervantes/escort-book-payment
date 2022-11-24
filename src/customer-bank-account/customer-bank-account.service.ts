@@ -17,6 +17,10 @@ export class CustomerBankAccountService {
     return this.customerBankAccountModel.findOne(filter);
   }
 
+  async count(filter?: FilterQuery<CustomerBankAccountDocument>): Promise<number> {
+    return this.customerBankAccountModel.countDocuments(filter);
+  }
+
   async create(account: CreateCustomerBankAccountDTO): Promise<CustomerBankAccount> {
     return this.customerBankAccountModel.create(account);
   }
@@ -32,5 +36,9 @@ export class CustomerBankAccountService {
     });
     await doc.save();
     return doc;
+  }
+
+  async deleteMany(filter?: FilterQuery<CustomerBankAccountDocument>): Promise<void> {
+    await this.customerBankAccountModel.deleteMany(filter);
   }
 }

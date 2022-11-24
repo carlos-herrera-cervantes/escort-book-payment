@@ -1,11 +1,11 @@
 import { IsNotEmpty, IsNumber } from 'class-validator';
 
-export class PaginateDTO {
+export class Paginate {
   @IsNotEmpty()
   @IsNumber()
-  offset: number;
+  offset: number = 0;
 
   @IsNotEmpty()
   @IsNumber()
-  limit: number;
+  limit: number = 10;
 }

@@ -2,10 +2,10 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 import { PaymentMethodCatalog } from './payment-method-catalog.schema';
 
-export type PaymentUserDocument = PaymentUser & Document;
+export type UserPaymentDocument = UserPayment & Document;
 
 @Schema({ versionKey: false, collection: 'user_payments' })
-export class PaymentUser {
+export class UserPayment {
   _id: string;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'PaymentMethodCatalog' })
@@ -21,9 +21,9 @@ export class PaymentUser {
   updatedAt: Date;
 }
 
-export const PaymentUserSchema = SchemaFactory.createForClass(PaymentUser);
+export const PaymentUserSchema = SchemaFactory.createForClass(UserPayment);
 
-PaymentUserSchema.pre<PaymentUserDocument>('save', function () {
+PaymentUserSchema.pre<UserPaymentDocument>('save', function () {
   if (this.isNew) {
     this.createdAt = new Date();
     this.updatedAt = new Date();

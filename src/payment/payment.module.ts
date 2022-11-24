@@ -6,7 +6,7 @@ import {
   PaymentMethodCatalog,
   PaymentMethodCatalogSchema,
 } from './schemas/payment-method-catalog.schema';
-import { PaymentUser, PaymentUserSchema } from './schemas/payment-user.schema';
+import { UserPayment, PaymentUserSchema } from './schemas/user-payment.schema';
 import { PaymentController } from './payment.controller';
 import {
   PaymentDetail,
@@ -21,7 +21,7 @@ import { ServiceListener } from './listeners/service.listener';
     MongooseModule.forFeature([
       { name: Payment.name, schema: PaymentSchema },
       { name: PaymentMethodCatalog.name, schema: PaymentMethodCatalogSchema },
-      { name: PaymentUser.name, schema: PaymentUserSchema },
+      { name: UserPayment.name, schema: PaymentUserSchema },
       { name: PaymentDetail.name, schema: PaymentDetailSchema },
     ]),
   ],

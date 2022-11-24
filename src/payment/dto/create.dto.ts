@@ -10,7 +10,7 @@ export class CreatePaymentMethodCatalogDTO {
   description: string;
 }
 
-export class CreatePaymentUserDTO {
+export class CreateUserPaymentDTO {
   @IsNotEmpty()
   @IsString()
   paymentMethodId: string;

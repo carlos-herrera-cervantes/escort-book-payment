@@ -7,12 +7,12 @@ import {
   PaymentMethodCatalogDocument,
 } from './schemas/payment-method-catalog.schema';
 import {
-  PaymentUser,
-  PaymentUserDocument,
-} from './schemas/payment-user.schema';
+  UserPayment,
+  UserPaymentDocument,
+} from './schemas/user-payment.schema';
 import {
   CreatePaymentMethodCatalogDTO,
-  CreatePaymentUserDTO,
+  CreateUserPaymentDTO,
 } from './dto/create.dto';
 import { FilterQuery } from 'mongoose';
 import {
@@ -28,8 +28,8 @@ export class PaymentService {
   @InjectModel(PaymentMethodCatalog.name)
   private readonly paymentMethodCatalogModel: Model<PaymentMethodCatalogDocument>;
 
-  @InjectModel(PaymentUser.name)
-  private readonly paymentUserModel: Model<PaymentUserDocument>;
+  @InjectModel(UserPayment.name)
+  private readonly userPaymentModel: Model<UserPaymentDocument>;
 
   @InjectModel(PaymentDetail.name)
   private readonly paymentDetailModel: Model<PaymentDetailDocument>;
@@ -58,8 +58,8 @@ export class PaymentService {
     return this.paymentMethodCatalogModel.findOne(filter);
   }
 
-  async getLinkedPaymentMethods(filter?: FilterQuery<PaymentUser>, populateFilter?: any): Promise<PaymentUser> {
-    return this.paymentUserModel.find(filter).populate(populateFilter).lean();
+  async getLinkedPaymentMethods(filter?: FilterQuery<UserPayment>, populateFilter?: any): Promise<UserPayment[]> {
+    return this.userPaymentModel.find(filter).populate(populateFilter).lean();
   }
 
   async softDeletePaymentMethod(filter?: FilterQuery<PaymentMethodCatalog>): Promise<void> {
@@ -71,19 +71,43 @@ export class PaymentService {
     await paymentMethod.save();
   }
 
-  async linkPaymentMethods(paymentMethods: CreatePaymentUserDTO[]): Promise<PaymentUser[]> {
-    return this.paymentUserModel.create(paymentMethods);
+  async linkPaymentMethods(paymentMethods: CreateUserPaymentDTO[]): Promise<UserPayment[]> {
+    return this.userPaymentModel.create(paymentMethods);
   }
 
-  async unlinkPaymentMethod(filter?: FilterQuery<PaymentUser>): Promise<void> {
-    await this.paymentUserModel.findOneAndDelete(filter);
+  async unlinkPaymentMethod(filter?: FilterQuery<UserPayment>): Promise<void> {
+    await this.userPaymentModel.findOneAndDelete(filter);
   }
 
-  async countLinkedPaymentMethods(filter?: FilterQuery<PaymentUser>): Promise<number> {
-    return this.paymentUserModel.count(filter);
+  async count(filter?: FilterQuery<Payment>): Promise<number> {
+    return this.paymentModel.countDocuments(filter);
+  }
+
+  async countPaymentDetails(filter?: FilterQuery<PaymentDetail>): Promise<number> {
+    return this.paymentDetailModel.countDocuments(filter);
+  }
+
+  async countLinkedPaymentMethods(filter?: FilterQuery<UserPayment>): Promise<number> {
+    return this.userPaymentModel.count(filter);
   }
 
   async countPaymentMethods(filter?: FilterQuery<PaymentMethodCatalog>): Promise<number> {
     return this.paymentMethodCatalogModel.count(filter);
+  }
+
+  async deletePaymentMethods(filter?: FilterQuery<PaymentMethodCatalog>): Promise<void> {
+    await this.paymentMethodCatalogModel.deleteMany(filter);
+  }
+
+  async deleteLinkedPaymentMethods(filter?: FilterQuery<UserPayment>): Promise<void> {
+    await this.userPaymentModel.deleteMany(filter);
+  }
+
+  async deletePaymentDetails(filter?: FilterQuery<PaymentDetail>): Promise<void> {
+    await this.paymentDetailModel.deleteMany(filter);
+  }
+
+  async deleteMany(filter?: FilterQuery<Payment>): Promise<void> {
+    await this.paymentModel.deleteMany(filter);
   }
 }

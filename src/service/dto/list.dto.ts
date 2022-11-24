@@ -24,6 +24,6 @@ export class ListServiceDTO {
   updatedAt: Date;
 }
 
-export class ListTotalDTO {
+export class ListTotal {
   total: number;
 }
