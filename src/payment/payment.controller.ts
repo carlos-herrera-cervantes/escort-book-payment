@@ -13,7 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { MessageResponseDTO } from '../common/dto/message-response.dto';
+import { MessageResponse } from '../common/dto/message-response.dto';
 import { CreatePaymentMethodCatalogDTO, MethodsDTO } from './dto/create.dto';
 import {
   LinkPaymentMethodGuard,
@@ -22,7 +22,7 @@ import {
 import { PaymentMethodGuard } from './guards/payment-method.guard';
 import { PaymentService } from './payment.service';
 import { PaymentMethodCatalog } from './schemas/payment-method-catalog.schema';
-import { PaymentUser } from './schemas/payment-user.schema';
+import { UserPayment } from './schemas/user-payment.schema';
 
 @Controller('api/v1/payments')
 export class PaymentController {
@@ -38,14 +38,14 @@ export class PaymentController {
   }
 
   @Get('link')
-  async getLinkedPaymentMethods(@Req() req: any): Promise<PaymentUser> {
+  async getLinkedPaymentMethods(@Req() req: any): Promise<UserPayment[]> {
     const filter = { userId: req?.body?.user?.id };
     const populateFilter = { path: 'paymentMethodId' };
     return this.paymentService.getLinkedPaymentMethods(filter, populateFilter);
   }
 
   @Get('methods/:id/user')
-  async getLinkedPaymentMethodsByUser(@Param('id') id: string): Promise<PaymentUser> {
+  async getLinkedPaymentMethodsByUser(@Param('id') id: string): Promise<UserPayment[]> {
     const filter = { userId: id };
     const populateFilter = { path: 'paymentMethodId' };
     return this.paymentService.getLinkedPaymentMethods(filter, populateFilter);
@@ -53,15 +53,12 @@ export class PaymentController {
 
   @Post('methods')
   async createPaymentMethod(@Body() paymentMethod: CreatePaymentMethodCatalogDTO): Promise<PaymentMethodCatalog> {
-    return this.paymentService.createPaymentMethod(paymentMethod).catch((err) => {
-      if (err.code == 11000) throw new ConflictException();
-      throw err;
-    });
+    return this.paymentService.createPaymentMethod(paymentMethod).catch((err) => { throw new ConflictException(err); });
   }
 
   @Post('link')
   @UseGuards(LinkPaymentMethodsGuard)
-  async linkPaymentMethods(@Req() req: any, @Body() body: MethodsDTO): Promise<MessageResponseDTO> {
+  async linkPaymentMethods(@Req() req: any, @Body() body: MethodsDTO): Promise<MessageResponse> {
     const linkPayments = body.methods.map((element) => ({
       userId: req?.body?.user?.id,
       paymentMethodId: element,

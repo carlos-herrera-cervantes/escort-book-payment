@@ -17,6 +17,10 @@ export class EscortBankAccountService {
     return this.escortBankAccountModel.findOne(filter).lean();
   }
 
+  async count(filter?: FilterQuery<EscortBankAccountDocument>): Promise<number> {
+    return this.escortBankAccountModel.countDocuments(filter);
+  }
+
   async create(account: CreateEscortBankAccountDTO): Promise<EscortBankAccount> {
     return this.escortBankAccountModel.create(account);
   }
@@ -32,5 +36,9 @@ export class EscortBankAccountService {
     });
     await doc.save();
     return doc;
+  }
+
+  async deleteMany(filter?: FilterQuery<EscortBankAccountDocument>): Promise<void> {
+    await this.escortBankAccountModel.deleteMany(filter);
   }
 }

@@ -1,20 +1,20 @@
-import { CreateServiceDTO } from '../dto/create.dto';
+import { CreateService } from '../dto/create.dto';
 import { Service } from '../schemas/service.schema';
 import { Types } from 'mongoose';
 import { PriceService } from '../../price/price.service';
-import { ServiceService } from '../service.service';
+import { ServiceRepository } from '../service.repository';
 import { TimeUnit } from '../enums/time-unit.enum';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import '../../common/extensions/number.extensions';
 
 declare module '../dto/create.dto' {
-  interface CreateServiceDTO {
-    toService(priceRepository: PriceService, serviceRepository: ServiceService): Promise<Service>;
+  interface CreateService {
+    toService(priceRepository: PriceService, serviceRepository: ServiceRepository): Promise<Service>;
   }
 }
 
-CreateServiceDTO.prototype.toService = async function(priceRepository: PriceService, serviceRepository: ServiceService): Promise<Service> {
-  const self = this as CreateServiceDTO;
+CreateService.prototype.toService = async function(priceRepository: PriceService, serviceRepository: ServiceRepository): Promise<Service> {
+  const self = this as CreateService;
   const {
     priceId,
     customerId,

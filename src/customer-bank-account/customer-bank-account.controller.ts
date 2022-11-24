@@ -20,10 +20,7 @@ export class CustomerBankAccountController {
   private readonly customerBankAccountService: CustomerBankAccountService;
 
   @Post()
-  async create(
-    @Req() req: any,
-    @Body() account: CreateCustomerBankAccountDTO,
-  ): Promise<CustomerBankAccount> {
+  async create(@Req() req: any, @Body() account: CreateCustomerBankAccountDTO): Promise<CustomerBankAccount> {
     account.customerId = req?.body?.user?.id;
 
     // TODO: Here we need to call the payment gateway for:
@@ -39,7 +36,7 @@ export class CustomerBankAccountController {
     @Body() newAccount: UpdateCustomerBankAccountDTO,
   ): Promise<CustomerBankAccount> {
     const customerId: string = req?.body?.user?.id;
-    const account: CustomerBankAccount = await this.customerBankAccountService.getOne({
+    const account: number = await this.customerBankAccountService.count({
       _id: new Types.ObjectId(id),
       customerId: new Types.ObjectId(customerId),
     });

@@ -1,6 +1,6 @@
 import { IsOptional, IsString } from 'class-validator';
 
-export class UpdateServiceDTO {
+export class UpdateService {
   @IsOptional()
   @IsString()
   cardId: string;

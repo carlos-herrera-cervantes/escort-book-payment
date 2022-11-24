@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ServiceDocument } from '../../service/schemas/service.schema';
-import { CreatePaymentDetailDTO } from '../../service/dto/create.dto';
+import { CreatePaymentDetail } from '../../service/dto/create.dto';
 import { PaymentService } from '../payment.service';
 import { PaymentDetail } from '../schemas/payment-detail.schema';
 import { Types } from 'mongoose';
@@ -17,7 +17,7 @@ export class ServiceListener {
   @OnEvent(ServiceEvents.Created, { async: true })
   async handleCreatedService(
     service: ServiceDocument,
-    paymentDetails: CreatePaymentDetailDTO[],
+    paymentDetails: CreatePaymentDetail[],
   ): Promise<void> {
     const details = paymentDetails.map((element) => ({
       paymentMethodId: new Types.ObjectId(element.paymentMethodId),

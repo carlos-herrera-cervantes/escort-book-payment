@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { CardService } from '../../card/card.service';
 import { PaymentService } from '../../payment/payment.service';
-import { CreatePaymentDetailDTO } from '../dto/create.dto';
+import { CreatePaymentDetail } from '../dto/create.dto';
 
 @Injectable()
 export class CardGuard implements CanActivate {
@@ -21,7 +21,7 @@ export class CardGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const { body } = context.switchToHttp().getRequest();
-    const paymentDetails = body?.paymentDetails as CreatePaymentDetailDTO[];
+    const paymentDetails = body?.paymentDetails as CreatePaymentDetail[];
     const paymentMethodIds = paymentDetails?.map(payment => payment.paymentMethodId);
 
     if (!paymentMethodIds.length) {
@@ -32,7 +32,7 @@ export class CardGuard implements CanActivate {
       _id: { $in: paymentMethodIds },
     });
     const paymentMethodNames = paymentMethods.map(paymentMethod => paymentMethod.name);
-    
+
     if (!paymentMethodNames.includes('Card')) return true;
 
     const cards = paymentDetails?.filter(payment => payment.cardId);

@@ -12,7 +12,7 @@ export class PriceService {
   @InjectRepository(PriceDetail)
   private readonly priceDetailRepository: Repository<PriceDetail>;
 
-  async findOne(filter: FindOneOptions<Price>): Promise<Price> {
+  async findOne(filter?: FindOneOptions<Price>): Promise<Price> {
     return this.priceRepository.findOne(filter);
   }
 

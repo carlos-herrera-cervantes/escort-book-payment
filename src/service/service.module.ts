@@ -5,7 +5,7 @@ import { PriceModule } from '../price/price.module';
 import { EscortProfileModule } from '../escort-profile/escort-profile.module';
 import { Service, ServiceSchema } from './schemas/service.schema';
 import { ServiceController } from './service.controller';
-import { ServiceService } from './service.service';
+import { ServiceRepository } from './service.repository';
 import {
   ServiceDetail,
   ServiceDetailSchema,
@@ -35,7 +35,7 @@ import { KAFKA_BROKERS } from '../config/kafka.config';
     CardModule,
     PaymentModule,
   ],
-  providers: [ServiceListener, ServiceService],
+  providers: [ServiceListener, ServiceRepository],
   controllers: [ServiceController],
   exports: [],
 })

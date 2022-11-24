@@ -1,23 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, FilterQuery } from 'mongoose';
-import { PaginateDTO } from '../common/dto/query-param.dto';
+import { Paginate } from '../common/dto/query-param.dto';
 import { Service, ServiceDocument } from './schemas/service.schema';
 import {
   ServiceDetail,
   ServiceDetailDocument,
 } from './schemas/service-detail.schema';
-import { CreateServiceDetailDTO } from './dto/create.dto';
+import { CreateServiceDetail } from './dto/create.dto';
 
 @Injectable()
-export class ServiceService {
+export class ServiceRepository {
   @InjectModel(Service.name)
   private readonly serviceModel: Model<ServiceDocument>;
 
   @InjectModel(ServiceDetail.name)
   private readonly serviceDetailModel: Model<ServiceDetailDocument>;
 
-  async getByPagination(paginate: PaginateDTO, filter?: FilterQuery<Service>): Promise<Service[]> {
+  async getByPagination(paginate: Paginate, filter?: FilterQuery<Service>): Promise<Service[]> {
     const { offset, limit } = paginate;
     return this.serviceModel
       .find(filter)
@@ -36,11 +36,23 @@ export class ServiceService {
     return this.serviceModel.create(service);
   }
 
-  async createBatchDetail(details: CreateServiceDetailDTO[]): Promise<any> {
+  async createBatchDetail(details: CreateServiceDetail[]): Promise<any> {
     return this.serviceDetailModel.insertMany(details);
   }
 
   async count(filter?: FilterQuery<Service>): Promise<number> {
     return this.serviceModel.countDocuments(filter);
+  }
+
+  async countDetails(filter?: FilterQuery<ServiceDetail>): Promise<number> {
+    return this.serviceDetailModel.countDocuments(filter);
+  }
+
+  async deleteMany(filter?: FilterQuery<Service>): Promise<void> {
+    await this.serviceModel.deleteMany(filter);
+  }
+
+  async deleteDetails(filter?: FilterQuery<ServiceDetail>): Promise<void> {
+    await this.serviceDetailModel.deleteMany(filter);
   }
 }

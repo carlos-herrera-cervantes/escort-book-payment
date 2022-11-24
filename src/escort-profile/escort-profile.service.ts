@@ -8,7 +8,7 @@ export class EscortProfileService {
   @InjectRepository(EscortProfile)
   private readonly escortProfileRepository: Repository<EscortProfile>;
 
-  async findOne(filter: FindOneOptions<EscortProfile>): Promise<EscortProfile> {
+  async findOne(filter?: FindOneOptions<EscortProfile>): Promise<EscortProfile> {
     return this.escortProfileRepository.findOne(filter);
   }
 

@@ -13,13 +13,13 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { EscortProfileService } from '../escort-profile/escort-profile.service';
-import { PaginateDTO } from '../common/dto/query-param.dto';
-import { ListTotalDTO, ServiceDTO } from './dto/list.dto';
+import { Paginate } from '../common/dto/query-param.dto';
+import { ListServiceDTO, ListTotal, ServiceDTO } from './dto/list.dto';
 import { Service } from './schemas/service.schema';
-import { ServiceService } from './service.service';
+import { ServiceRepository } from './service.repository';
 import { Types } from 'mongoose';
-import { UpdateServiceDTO } from './dto/update.dto';
-import { CalculateTotalServiceDTO, CreateServiceDTO } from './dto/create.dto';
+import { UpdateService } from './dto/update.dto';
+import { CalculateTotalService, CreateService } from './dto/create.dto';
 import { PriceService } from '../price/price.service';
 import { Pager } from '../common/helpers/pager';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -28,7 +28,7 @@ import { CardGuard } from './guards/card.guard';
 import { TimeUnit } from './enums/time-unit.enum';
 import { In } from 'typeorm';
 import { CardService } from '../card/card.service';
-import { MessageResponseDTO } from '../common/dto/message-response.dto';
+import { MessageResponse } from '../common/dto/message-response.dto';
 import { ServiceStatus } from './enums/status.enum';
 import { ServiceEvents } from '../config/event.config';
 import './extensions/array.extension';
@@ -38,8 +38,8 @@ import '../common/extensions/number.extensions';
 
 @Controller('/api/v1/payments/services')
 export class ServiceController {
-  @Inject(ServiceService)
-  private readonly serviceService: ServiceService;
+  @Inject(ServiceRepository)
+  private readonly serviceService: ServiceRepository;
 
   @Inject(EscortProfileService)
   private readonly escortProfileService: EscortProfileService;
@@ -54,7 +54,7 @@ export class ServiceController {
   private readonly cardService: CardService;
 
   @Get()
-  async getByPagination(@Query() paginate: PaginateDTO, @Req() req: any): Promise<Pager> {
+  async getByPagination(@Query() paginate: Paginate, @Req() req: any): Promise<Pager<ListServiceDTO>> {
     const user = req?.body?.user;
     const filter = user?.type == 'Customer'
       ? { customerId: new Types.ObjectId(user.id) }
@@ -66,7 +66,7 @@ export class ServiceController {
     ]);
     const data = await services.setEscortProfile(this.escortProfileService);
 
-    return new Pager().getPager(paginate, totalDocs, data);
+    return new Pager<ListServiceDTO>(paginate, totalDocs, data).getPager();
   }
 
   @Get(':id')
@@ -88,8 +88,8 @@ export class ServiceController {
   }
 
   @Post('total')
-  async calculateTotal(@Body() calculateTotal: CalculateTotalServiceDTO): Promise<ListTotalDTO> {
-    const { priceId, timeQuantity, details, timeMeasurementUnit } = calculateTotal;
+  async calculateTotal(@Body() calculateTotalService: CalculateTotalService): Promise<ListTotal> {
+    const { priceId, timeQuantity, details, timeMeasurementUnit } = calculateTotalService;
     const price = await this.priceService.findOne({ where: { id: priceId } });
 
     if (!price) throw new NotFoundException();
@@ -115,19 +115,19 @@ export class ServiceController {
   @Post()
   @UseGuards(AssetsGuard)
   @UseGuards(CardGuard)
-  async create(@Body() createServiceDTO: CreateServiceDTO, @Req() req: any): Promise<Service> {
-    createServiceDTO.customerId = req?.body?.user?.id;
+  async create(@Body() createService: CreateService, @Req() req: any): Promise<Service> {
+    createService.customerId = req?.body?.user?.id;
 
-    const newService = await createServiceDTO.toService(this.priceService, this.serviceService);
+    const newService = await createService.toService(this.priceService, this.serviceService);
     const created = await this.serviceService.create(newService);
 
-    this.eventEmitter.emit(ServiceEvents.Created, created, createServiceDTO.paymentDetails);
+    this.eventEmitter.emit(ServiceEvents.Created, created, createService.paymentDetails);
 
     return created;
   }
 
   @Post(':id/start')
-  async startService(@Req() req: any, @Param('id') id: string): Promise<MessageResponseDTO> {
+  async startService(@Req() req: any, @Param('id') id: string): Promise<MessageResponse> {
     const escortId = req?.body?.user?.id;
     const filter = { escortId, _id: id };
     const exists = await this.serviceService.getOneAndPopulate(filter, {
@@ -152,10 +152,10 @@ export class ServiceController {
 
   @Post(':id/pay')
   async payService(
-    @Body() service: UpdateServiceDTO,
+    @Body() service: UpdateService,
     @Req() req: any,
     @Param('id') id: string,
-  ): Promise<MessageResponseDTO> {
+  ): Promise<MessageResponse> {
     const filter = { customerId: req?.body?.user?.id, _id: id };
     const exists = await this.serviceService.getOneAndPopulate(filter, {
       path: 'paymentDetails',

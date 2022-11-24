@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { TimeUnit } from '../enums/time-unit.enum';
 
-export class CalculateTotalServiceDTO {
+export class CalculateTotalService {
   @IsNotEmpty()
   @IsString()
   priceId: string;
@@ -24,10 +24,10 @@ export class CalculateTotalServiceDTO {
 
   @IsOptional()
   @IsArray()
-  details: CreateServiceDetailDTO[] = [];
+  details: CreateServiceDetail[] = [];
 }
 
-export class CreateServiceDTO extends CalculateTotalServiceDTO {
+export class CreateService extends CalculateTotalService {
   @IsOptional()
   @IsString()
   customerId: string;
@@ -38,14 +38,14 @@ export class CreateServiceDTO extends CalculateTotalServiceDTO {
 
   @IsNotEmpty()
   @IsArray()
-  paymentDetails: CreatePaymentDetailDTO[] = [];
+  paymentDetails: CreatePaymentDetail[] = [];
 
   @IsOptional()
   @IsBoolean()
   partialPayment = false;
 }
 
-export class CreateServiceDetailDTO {
+export class CreateServiceDetail {
   @IsNotEmpty()
   @IsString()
   serviceId: string;
@@ -59,7 +59,7 @@ export class CreateServiceDetailDTO {
   cost: number;
 }
 
-export class CreatePaymentDetailDTO {
+export class CreatePaymentDetail {
   @IsNotEmpty()
   @IsString()
   paymentMethodId: string;
