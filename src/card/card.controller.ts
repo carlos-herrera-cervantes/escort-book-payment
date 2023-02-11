@@ -3,13 +3,13 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   HttpCode,
   HttpStatus,
   Inject,
   NotFoundException,
   Param,
   Post,
-  Req,
 } from '@nestjs/common';
 import { CardService } from './card.service';
 import { CreateCardDTO } from './dto/create.dto';
@@ -26,15 +26,13 @@ export class CardController {
   private readonly eventEmitter: EventEmitter2;
 
   @Get()
-  async getAll(@Req() req: any): Promise<Card[]> {
-    const customerId: string = req?.body?.user?.id;
-    return this.cardService.getAll({ customerId });
+  async getAll(@Headers('userId') userId: string): Promise<Card[]> {
+    return this.cardService.getAll({ customerId: userId });
   }
 
   @Get(':id')
-  async getOne(@Req() req: any, @Param('id') id: string): Promise<Card> {
-    const customerId: string = req?.body?.user?.id;
-    const card: Card = await this.cardService.getOne({ customerId, _id: id });
+  async getOne(@Headers('userId') userId: string, @Param('id') id: string): Promise<Card> {
+    const card: Card = await this.cardService.getOne({ customerId: userId, _id: id });
 
     if (!card) throw new NotFoundException();
 
@@ -42,31 +40,28 @@ export class CardController {
   }
 
   @Post()
-  async create(@Req() req: any, @Body() card: CreateCardDTO): Promise<Card> {
-    const customerId: string = req?.body?.user?.id;
-
+  async create(@Headers('userId') userId: string, @Body() card: CreateCardDTO): Promise<Card> {
     // TODO: Here we need to call the payment gateway for:
     // 1 - Register a card
 
     const newCard = new Card();
 
     newCard.token = 'dummy';
-    newCard.customerId = new Types.ObjectId(customerId);
+    newCard.customerId = new Types.ObjectId(userId);
     newCard.numbers = card.numbers;
     newCard.alias = card.alias;
 
     const created = await this.cardService.create(newCard);
 
-    this.eventEmitter.emit('card.created', customerId);
+    this.eventEmitter.emit('card.created', userId);
 
     return created;
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteOne(@Req() req: any, @Param('id') id: string): Promise<void> {
-    const customerId = req?.body?.user?.id;
-    const counter = await this.cardService.count({ customerId, _id: id });
+  async deleteOne(@Headers('userId') userId: string, @Param('id') id: string): Promise<void> {
+    const counter = await this.cardService.count({ customerId: userId, _id: id });
 
     if (!counter) throw new NotFoundException();
 
@@ -74,8 +69,8 @@ export class CardController {
     // 1 - Delete a card
 
     await this.cardService.deleteOne({ _id: new Types.ObjectId(id) });
-    const remainingCards = await this.cardService.count({ customerId });
+    const remainingCards = await this.cardService.count({ customerId: userId });
 
-    if (!remainingCards) this.eventEmitter.emit('empty.cards', customerId);
+    if (!remainingCards) this.eventEmitter.emit('empty.cards', userId);
   }
 }

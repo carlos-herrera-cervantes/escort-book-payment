@@ -56,12 +56,12 @@ describe('PaymentController', () => {
   });
 
   it('getLinkedPaymentMethods - Should return an empty list', async () => {
-    const req = { body: { user: { id: '637c69a24880516fac96dd77' } } };
     const mockCallToGetLinkedPaymentMethods = jest
       .spyOn(paymentService, 'getLinkedPaymentMethods')
       .mockImplementation(() => Promise.resolve([]));
 
-    const getResult: UserPayment[] = await paymentController.getLinkedPaymentMethods(req);
+    const userId = '637c69a24880516fac96dd77';
+    const getResult: UserPayment[] = await paymentController.getLinkedPaymentMethods(userId);
 
     expect(getResult.length).toBeFalsy();
     expect(mockCallToGetLinkedPaymentMethods).toBeCalledTimes(1);
@@ -103,14 +103,13 @@ describe('PaymentController', () => {
   });
 
   it('linkPaymentMethods - Should return a message response', async () => {
-    const req = { body: { user: { id: '637c69a24880516fac96dd77' } } };
     const payments = new MethodsDTO();
     payments.methods = [];
     const mockCallToLinkPaymentMethods = jest
       .spyOn(paymentService, 'linkPaymentMethods')
       .mockImplementation(() => Promise.resolve([]));
 
-    const linkResult: MessageResponse = await paymentController.linkPaymentMethods(req, payments);
+    const linkResult: MessageResponse = await paymentController.linkPaymentMethods("637c69a24880516fac96dd77", payments);
 
     expect(linkResult.message).toEqual('OK');
     expect(mockCallToLinkPaymentMethods).toBeCalledTimes(1);

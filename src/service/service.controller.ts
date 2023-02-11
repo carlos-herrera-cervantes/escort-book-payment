@@ -5,12 +5,12 @@ import {
   Inject,
   Param,
   Query,
-  Req,
   Post,
   NotFoundException,
   UseGuards,
   BadRequestException,
   ForbiddenException,
+  Headers,
 } from '@nestjs/common';
 import { EscortProfileService } from '../escort-profile/escort-profile.service';
 import { Paginate } from '../common/dto/query-param.dto';
@@ -54,11 +54,14 @@ export class ServiceController {
   private readonly cardService: CardService;
 
   @Get()
-  async getByPagination(@Query() paginate: Paginate, @Req() req: any): Promise<Pager<ListServiceDTO>> {
-    const user = req?.body?.user;
-    const filter = user?.type == 'Customer'
-      ? { customerId: new Types.ObjectId(user.id) }
-      : { escortId: new Types.ObjectId(user.id) };
+  async getByPagination(
+    @Query() paginate: Paginate,
+    @Headers('user-id') userId: string,
+    @Headers('user-type') userType: string,
+  ): Promise<Pager<ListServiceDTO>> {
+    const filter = userType == 'Customer'
+      ? { customerId: new Types.ObjectId(userId) }
+      : { escortId: new Types.ObjectId(userId) };
 
     const [services, totalDocs] = await Promise.all([
       this.serviceService.getByPagination(paginate, filter),
@@ -70,10 +73,9 @@ export class ServiceController {
   }
 
   @Get(':id')
-  async getById(@Param('id') id: string, @Req() req: any): Promise<ServiceDTO> {
-    const customerId = req?.body?.user?.id;
+  async getById(@Param('id') id: string, @Headers('user-id') userId: string): Promise<ServiceDTO> {
     const service = await this.serviceService.getOneAndPopulate(
-      { customerId, _id: id },
+      { customerId: userId, _id: id },
       { path: 'paymentDetails', populate: { path: 'paymentMethodId' } },
       { path: 'details' },
     );
@@ -115,8 +117,8 @@ export class ServiceController {
   @Post()
   @UseGuards(AssetsGuard)
   @UseGuards(CardGuard)
-  async create(@Body() createService: CreateService, @Req() req: any): Promise<Service> {
-    createService.customerId = req?.body?.user?.id;
+  async create(@Body() createService: CreateService, @Headers('user-id') userId: string): Promise<Service> {
+    createService.customerId = userId;
 
     const newService = await createService.toService(this.priceService, this.serviceService);
     const created = await this.serviceService.create(newService);
@@ -127,9 +129,8 @@ export class ServiceController {
   }
 
   @Post(':id/start')
-  async startService(@Req() req: any, @Param('id') id: string): Promise<MessageResponse> {
-    const escortId = req?.body?.user?.id;
-    const filter = { escortId, _id: id };
+  async startService(@Headers('user-id') userId: string, @Param('id') id: string): Promise<MessageResponse> {
+    const filter = { escortId: userId, _id: id };
     const exists = await this.serviceService.getOneAndPopulate(filter, {
       path: 'paymentDetails',
       populate: { path: 'paymentMethodId' },
@@ -137,7 +138,7 @@ export class ServiceController {
 
     if (!exists) throw new NotFoundException('Service not found');
 
-    if (escortId != exists.escortId.toString()) {
+    if (userId != exists.escortId.toString()) {
       throw new ForbiddenException('Escort does not correspond with the service');
     }
 
@@ -153,10 +154,10 @@ export class ServiceController {
   @Post(':id/pay')
   async payService(
     @Body() service: UpdateService,
-    @Req() req: any,
+    @Headers('user-id') userId: string,
     @Param('id') id: string,
   ): Promise<MessageResponse> {
-    const filter = { customerId: req?.body?.user?.id, _id: id };
+    const filter = { customerId: userId, _id: id };
     const exists = await this.serviceService.getOneAndPopulate(filter, {
       path: 'paymentDetails',
       populate: { path: 'paymentMethodId' },

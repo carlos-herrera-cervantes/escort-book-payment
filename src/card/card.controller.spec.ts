@@ -42,25 +42,27 @@ describe('CardController', () => {
   it('Should be defined', () => expect(cardController).toBeDefined());
 
   it('getAll - Should return an empty list', async () => {
-    const req = { body: { user: {} }};
     const mockCallToGetAll = jest
       .spyOn(cardService, 'getAll')
       .mockImplementation(() => Promise.resolve([]));
 
-    const getResult = await cardController.getAll(req);
+    const userId = '63e8016090654f7bac9cc6a4';
+    const getResult = await cardController.getAll(userId);
 
     expect(getResult.length).toBeFalsy();
     expect(mockCallToGetAll).toBeCalledTimes(1);
   });
 
   it('getOne - Should throw not found exception', async () => {
-    const req = { body: { user: {} }};
     const mockCallToGetOne = jest
       .spyOn(cardService, 'getOne')
       .mockImplementation(() => Promise.resolve(null));
 
+    const userId = '63e8016090654f7bac9cc6a4';
+    const cardId = '637bba0eba3db50d94514c61';
+
     expect(async () => {
-      await cardController.getOne(req, '637bba0eba3db50d94514c61');
+      await cardController.getOne(userId, cardId);
       expect(mockCallToGetOne).toBeCalledTimes(1);
     })
     .rejects
@@ -68,19 +70,20 @@ describe('CardController', () => {
   });
 
   it('getOne - Should return a card', async () => {
-    const req = { body: { user: {} }};
     const mockCallToGetOne = jest
       .spyOn(cardService, 'getOne')
       .mockImplementation(() => Promise.resolve(new Card()));
 
-    const getResult = await cardController.getOne(req, '637bba0eba3db50d94514c61');
+    const userId = '63e8016090654f7bac9cc6a4';
+    const cardId = '637bba0eba3db50d94514c61';
+
+    const getResult = await cardController.getOne(userId, cardId);
 
     expect(getResult).toBeTruthy();
     expect(mockCallToGetOne).toBeCalledTimes(1);
   });
 
   it('create - Should create a new card', async () => {
-    const req = { body: { user: { id: '637bb1b36498d6eec023ce55' } }};
     const newCreateCard = new CreateCardDTO();
     newCreateCard.numbers = '5451290126757632';
     newCreateCard.alias = 'Mastercard';
@@ -92,20 +95,24 @@ describe('CardController', () => {
       .spyOn(eventEmitter, 'emit')
       .mockImplementation(() => true);
 
-    await cardController.create(req, newCreateCard);
+    const userId = '63e8016090654f7bac9cc6a4';
+
+    await cardController.create(userId, newCreateCard);
 
     expect(mockCallToCreate).toBeCalledTimes(1);
     expect(mockCallToEmit).toBeCalledTimes(1);
   });
 
   it('deleteOne - Should throw not found exception', async () => {
-    const req = { body: { user: { id: '637bb1b36498d6eec023ce55' } }};
     const mockCallToCount = jest
       .spyOn(cardService, 'count')
       .mockImplementation(() => Promise.resolve(0));
 
+    const userId = '63e8016090654f7bac9cc6a4';
+    const cardId = '637bba0eba3db50d94514c61';
+
     expect(async () => {
-      await cardController.deleteOne(req, '637bba0eba3db50d94514c61');
+      await cardController.deleteOne(userId, cardId);
       expect(mockCallToCount).toBeCalledTimes(1);
     })
     .rejects
@@ -113,7 +120,6 @@ describe('CardController', () => {
   });
 
   it('deleteOne - Should delete a card', async () => {
-    const req = { body: { user: { id: '637bb1b36498d6eec023ce55' } }};
     const mockCallToCount = jest
       .spyOn(cardService, 'count')
       .mockImplementationOnce(() => Promise.resolve(1))
@@ -122,7 +128,10 @@ describe('CardController', () => {
       .spyOn(eventEmitter, 'emit')
       .mockImplementationOnce(() => true);
 
-    await cardController.deleteOne(req, '637bba0eba3db50d94514c61');
+    const userId = '63e8016090654f7bac9cc6a4';
+    const cardId = '637bba0eba3db50d94514c61';
+
+    await cardController.deleteOne(userId, cardId);
 
     expect(mockCallToCount).toBeCalledTimes(2);
     expect(mockCallToEmit).toBeCalledTimes(1);
