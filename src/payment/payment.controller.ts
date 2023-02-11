@@ -4,12 +4,12 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   HttpCode,
   HttpStatus,
   Inject,
   Param,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -38,8 +38,8 @@ export class PaymentController {
   }
 
   @Get('link')
-  async getLinkedPaymentMethods(@Req() req: any): Promise<UserPayment[]> {
-    const filter = { userId: req?.body?.user?.id };
+  async getLinkedPaymentMethods(@Headers('user-id') userId: string): Promise<UserPayment[]> {
+    const filter = { userId };
     const populateFilter = { path: 'paymentMethodId' };
     return this.paymentService.getLinkedPaymentMethods(filter, populateFilter);
   }
@@ -58,9 +58,9 @@ export class PaymentController {
 
   @Post('link')
   @UseGuards(LinkPaymentMethodsGuard)
-  async linkPaymentMethods(@Req() req: any, @Body() body: MethodsDTO): Promise<MessageResponse> {
+  async linkPaymentMethods(@Headers('user-id') userId: string, @Body() body: MethodsDTO): Promise<MessageResponse> {
     const linkPayments = body.methods.map((element) => ({
-      userId: req?.body?.user?.id,
+      userId,
       paymentMethodId: element,
     }));
 

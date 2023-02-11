@@ -29,20 +29,20 @@ describe('CustomerBankAccountController', () => {
   });
 
   it('create - Should create a customer bank account', async () => {
-    const req = { body: { user: { id: '637bcb6acf0018f5714a9da1' } } };
     const newCustomerBankAccount = new CreateCustomerBankAccountDTO();
     newCustomerBankAccount.clabe = '00492499513609840729';
     const mockCallToCreate = jest
       .spyOn(customerBankAccountService, 'create')
       .mockImplementation(() => Promise.resolve(new CustomerBankAccount()));
 
-    await customerBankAccountController.create(req, newCustomerBankAccount);
+    const userId = '637bcb6acf0018f5714a9da1';
+
+    await customerBankAccountController.create(userId, newCustomerBankAccount);
 
     expect(mockCallToCreate).toBeCalledTimes(1);
   });
 
   it('updateOne - Should throw not found exception', async () => {
-    const req = { body: { user: { id: '637bcb6acf0018f5714a9da1' } } };
     const bankAccountId = '637bccdef1bc33ce06ddd1fd';
     const newPartialBankAccount = new UpdateCustomerBankAccountDTO();
     newPartialBankAccount.clabe = '00492499513609840729';
@@ -50,8 +50,10 @@ describe('CustomerBankAccountController', () => {
       .spyOn(customerBankAccountService, 'count')
       .mockImplementation(() => Promise.resolve(0));
 
+    const userId = '637bcb6acf0018f5714a9da1';
+
     expect(async () => {
-      await customerBankAccountController.updateOne(req, bankAccountId, newPartialBankAccount);
+      await customerBankAccountController.updateOne(userId, bankAccountId, newPartialBankAccount);
       expect(mockCallToCount).toBeFalsy();
     })
     .rejects

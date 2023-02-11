@@ -1,12 +1,12 @@
 import {
   Body,
   Controller,
+  Headers,
   Inject,
   NotFoundException,
   Param,
   Patch,
   Post,
-  Req,
 } from '@nestjs/common';
 import { CreateEscortBankAccountDTO } from './dto/create.dto';
 import { EscortBankAccountService } from './escort-bank-account.service';
@@ -20,27 +20,24 @@ export class EscortBankAccountController {
   private readonly escortBankAccountService: EscortBankAccountService;
 
   @Post()
-  async create(@Req() req: any, @Body() account: CreateEscortBankAccountDTO): Promise<EscortBankAccount> {
-    const escortId: string = req?.body?.user?.id;
-
+  async create(@Headers('user-id') userId: string, @Body() account: CreateEscortBankAccountDTO): Promise<EscortBankAccount> {
     // TODO: Here we need to call the payment gateway for;
     // 1 - Register a bank account
 
-    account.escortId = escortId;
+    account.escortId = userId;
 
     return this.escortBankAccountService.create(account);
   }
 
   @Patch(':id')
   async updateOne(
-    @Req() req: any,
+    @Headers('user-id') userId: string,
     @Param('id') id: string,
     @Body() newAccount: UpdateEscortBankAccountDTO,
   ): Promise<EscortBankAccount> {
-    const customerId: string = req?.body?.user?.id;
     const account: EscortBankAccount = await this.escortBankAccountService.getOne({
       _id: new Types.ObjectId(id),
-      customerId: new Types.ObjectId(customerId),
+      customerId: new Types.ObjectId(userId),
     });
 
     if (!account) throw new NotFoundException();

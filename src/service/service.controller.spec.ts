@@ -94,9 +94,10 @@ describe('ServiceController', () => {
       .mockImplementation(() => Promise.resolve(new EscortProfile()));
 
     const paginate = new Paginate();
-    const req = { body: { user: { id: '637d95b1a95cfc683062943b' } } };
+    const userId = "637d95b1a95cfc683062943b";
+    const userType = "Customer";
 
-    const paginationResult: Pager<ListServiceDTO> = await serviceController.getByPagination(paginate, req);
+    const paginationResult: Pager<ListServiceDTO> = await serviceController.getByPagination(paginate, userId, userType);
 
     expect(paginationResult.total).toBeFalsy();
     expect(paginationResult.data).toEqual([]);
@@ -113,11 +114,12 @@ describe('ServiceController', () => {
     const mockCallToGetOneAndPopulate = jest
       .spyOn(serviceService, 'getOneAndPopulate')
       .mockImplementation(() => Promise.resolve(null));
-    const req = { body: { user: { id: '637d95b1a95cfc683062943b' } } };
+
     const serviceId = '637d9dfc7fad9f38f131e3b4';
+    const userId = '637d95b1a95cfc683062943b';
 
     expect(async () => {
-      await serviceController.getById(serviceId, req);
+      await serviceController.getById(serviceId, userId);
       expect(mockCallToGetOneAndPopulate).toBeCalledTimes(1);
     }).rejects.toThrow(NotFoundException);
   });
@@ -146,10 +148,10 @@ describe('ServiceController', () => {
       .spyOn(escortProfileService, 'findOne')
       .mockImplementation(() => Promise.resolve(escortProfile));
 
-    const req = { body: { user: { id: '637d95b1a95cfc683062943b' } } };
+    const userId = '637d95b1a95cfc683062943b';
     const serviceId = '637d9dfc7fad9f38f131e3b4';
 
-    await serviceController.getById(serviceId, req);
+    await serviceController.getById(serviceId, userId);
 
     expect(mockCallToGetOneAndPopulate).toBeCalledTimes(1);
     expect(mockCallToFindOne).toBeCalledTimes(1);
@@ -247,11 +249,11 @@ describe('ServiceController', () => {
       .spyOn(priceService, 'findOne')
       .mockImplementation(() => Promise.resolve(null));
 
-    const req = { body: { user: { id: '637d95b1a95cfc683062943b' } } };
+    const userId = '637d95b1a95cfc683062943b';
     const createService = new CreateService();
 
     expect(async () => {
-      await serviceController.create(createService, req);
+      await serviceController.create(createService, userId);
       expect(mockCallToFindOne).toBeCalledTimes(1);
     }).rejects.toThrow(NotFoundException);
   });
@@ -263,12 +265,12 @@ describe('ServiceController', () => {
       .spyOn(priceService, 'findOne')
       .mockImplementation(() => Promise.resolve(price));
 
-    const req = { body: { user: { id: '637d95b1a95cfc683062943b' } } };
+    const userId = '637d95b1a95cfc683062943b';
     const createService = new CreateService();
     createService.timeQuantity = 0.5;
 
     expect(async () => {
-      await serviceController.create(createService, req);
+      await serviceController.create(createService, userId);
       expect(mockCallToFindOne).toBeCalledTimes(1);
     }).rejects.toThrow(BadRequestException);
   });
@@ -285,7 +287,7 @@ describe('ServiceController', () => {
       .spyOn(serviceService, 'createBatchDetail')
       .mockImplementation(() => Promise.resolve([]));
 
-    const req = { body: { user: { id: '637d95b1a95cfc683062943b' } } };
+    const userId = '637d95b1a95cfc683062943b';
     const createService = new CreateService();
     createService.priceId = '06901296-0d90-4b89-9700-ef53771c52d4';
     createService.customerId = '637ed427c4ee33ccb11fea5b';
@@ -296,7 +298,7 @@ describe('ServiceController', () => {
     createService.paymentDetails = [];
 
     expect(async () => {
-      await serviceController.create(createService, req);
+      await serviceController.create(createService, userId);
       expect(mockCallToFindOne).toBeCalledTimes(1);
       expect(mockCallToCreateBatchDetail).toBeCalledTimes(1);
     }).rejects.toThrow(BadRequestException);
@@ -318,7 +320,7 @@ describe('ServiceController', () => {
       .spyOn(eventEmitter, 'emit')
       .mockImplementation(() => true);
 
-    const req = { body: { user: { id: '637d95b1a95cfc683062943b' } } };
+    const userId = '637d95b1a95cfc683062943b';
     const createPaymentDetail = new CreatePaymentDetail();
     createPaymentDetail.quantity = 880;
     const createService = new CreateService();
@@ -330,7 +332,7 @@ describe('ServiceController', () => {
     createService.details = [];
     createService.paymentDetails = [createPaymentDetail];
 
-    await serviceController.create(createService, req);
+    await serviceController.create(createService, userId);
 
     expect(mockCallToFindOne).toBeCalledTimes(1);
     expect(mockCallToCreateBatchDetail).toBeCalledTimes(1);
@@ -342,11 +344,11 @@ describe('ServiceController', () => {
       .spyOn(serviceService, 'getOneAndPopulate')
       .mockImplementation(() => Promise.resolve(null));
 
-    const req = { body: { user: { id: '637d95b1a95cfc683062943b' } } };
+    const userId = '637d95b1a95cfc683062943b';
     const serviceId = '637ed9c09c4269a853ace73f';
 
     expect(async () => {
-      await serviceController.startService(req, serviceId);
+      await serviceController.startService(userId, serviceId);
       expect(mockCallToGetOneAndPopulate).toBeCalledTimes(1);
     }).rejects.toThrow(NotFoundException);
   });
@@ -358,11 +360,11 @@ describe('ServiceController', () => {
       .spyOn(serviceService, 'getOneAndPopulate')
       .mockImplementation(() => Promise.resolve(service));
 
-    const req = { body: { user: { id: '637d95b1a95cfc683062943b' } } };
+    const userId = '637d95b1a95cfc683062943b';
     const serviceId = '637ed9c09c4269a853ace73f';
 
     expect(async () => {
-      await serviceController.startService(req, serviceId);
+      await serviceController.startService(userId, serviceId);
       expect(mockCallToGetOneAndPopulate).toBeCalledTimes(1);
     }).rejects.toThrow(ForbiddenException);
   });
@@ -375,11 +377,11 @@ describe('ServiceController', () => {
       .spyOn(serviceService, 'getOneAndPopulate')
       .mockImplementation(() => Promise.resolve(service));
 
-    const req = { body: { user: { id: '637d95b1a95cfc683062943b' } } };
+    const userId = '637d95b1a95cfc683062943b';
     const serviceId = '637ed9c09c4269a853ace73f';
 
     expect(async () => {
-      await serviceController.startService(req, serviceId);
+      await serviceController.startService(userId, serviceId);
       expect(mockCallToGetOneAndPopulate).toBeCalledTimes(1);
     }).rejects.toThrow(BadRequestException);
   });
@@ -396,10 +398,10 @@ describe('ServiceController', () => {
       .spyOn(eventEmitter, 'emit')
       .mockImplementation(() => true);
 
-    const req = { body: { user: { id: '637d95b1a95cfc683062943b' } } };
+    const userId = '637d95b1a95cfc683062943b';
     const serviceId = '637ed9c09c4269a853ace73f';
 
-    await serviceController.startService(req, serviceId);
+    await serviceController.startService(userId, serviceId);
 
     expect(mockCallToGetOneAndPopulate).toBeCalledTimes(1);
     expect(mockCallToEmit).toBeCalledTimes(1);
@@ -411,11 +413,11 @@ describe('ServiceController', () => {
       .mockImplementation(() => Promise.resolve(null));
 
     const updateService = new UpdateService();
-    const req = { body: { user: { id: '637d95b1a95cfc683062943b' } } };
+    const userId = '637d95b1a95cfc683062943b';
     const serviceId = '637ed9c09c4269a853ace73f';
 
     expect(async () => {
-      await serviceController.payService(updateService, req, serviceId);
+      await serviceController.payService(updateService, userId, serviceId);
       expect(mockCallToGetOneAndPopulate).toBeCalledTimes(1);
     }).rejects.toThrow(NotFoundException);
   });
@@ -428,11 +430,11 @@ describe('ServiceController', () => {
       .mockImplementation(() => Promise.resolve(service));
 
     const updateService = new UpdateService();
-    const req = { body: { user: { id: '637d95b1a95cfc683062943b' } } };
+    const userId = '637d95b1a95cfc683062943b';
     const serviceId = '637ed9c09c4269a853ace73f';
 
     expect(async () => {
-      await serviceController.payService(updateService, req, serviceId);
+      await serviceController.payService(updateService, userId, serviceId);
       expect(mockCallToGetOneAndPopulate).toBeCalledTimes(1);
     }).rejects.toThrow(BadRequestException);
   });
@@ -451,11 +453,11 @@ describe('ServiceController', () => {
 
     const updateService = new UpdateService();
     updateService.cardId = '637ee3334cae88a16f6bd4f5';
-    const req = { body: { user: { id: '637d95b1a95cfc683062943b' } } };
+    const userId = '637d95b1a95cfc683062943b';
     const serviceId = '637ed9c09c4269a853ace73f';
 
     expect(async () => {
-      await serviceController.payService(updateService, req, serviceId);
+      await serviceController.payService(updateService, userId, serviceId);
       expect(mockCallToGetOneAndPopulate).toBeCalledTimes(1);
       expect(mockCallToCount).toBeCalledTimes(1);
     }).rejects.toThrow(NotFoundException);
@@ -473,10 +475,10 @@ describe('ServiceController', () => {
       .mockImplementation(() => true);
 
     const updateService = new UpdateService();
-    const req = { body: { user: { id: '637d95b1a95cfc683062943b' } } };
+    const userId = '637d95b1a95cfc683062943b';
     const serviceId = '637ed9c09c4269a853ace73f';
 
-    await serviceController.payService(updateService, req, serviceId);
+    await serviceController.payService(updateService, userId, serviceId);
     expect(mockCallToGetOneAndPopulate).toBeCalledTimes(1);
     expect(mockCallToEmit).toBeCalledTimes(1);
   });

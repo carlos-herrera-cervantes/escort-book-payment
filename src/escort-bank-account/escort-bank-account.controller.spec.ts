@@ -31,33 +31,34 @@ describe('EscortBankAccountController', () => {
   it('Should be defined', () => expect(escortBankAccountController).toBeDefined());
 
   it('create - Should create bank account', async () => {
-    const req = { body: { user: { id: '637c428e3cf9bfb9f181d19d' } } };
     const createEscortBankAccount = new CreateEscortBankAccountDTO();
     const mockCallToCreate = jest
       .spyOn(escortBankAccountService, 'create')
       .mockImplementation(() => Promise.resolve(new EscortBankAccount()));
 
-    await escortBankAccountController.create(req, createEscortBankAccount);
+    const userId = '637c428e3cf9bfb9f181d19d';
+
+    await escortBankAccountController.create(userId, createEscortBankAccount);
 
     expect(mockCallToCreate).toBeCalledTimes(1);
   });
 
   it('updateOne - Should throw not found exception', async () => {
-    const req = { body: { user: { id: '637c428e3cf9bfb9f181d19d' } } };
     const accountId = '637c43ae8ec19029e46a2f09';
     const updateEscortBankAccount = new UpdateCustomerBankAccountDTO();
     const mockCallToGetOne = jest
       .spyOn(escortBankAccountService, 'getOne')
       .mockImplementation(() => Promise.resolve(null));
 
+    const userId = '637c428e3cf9bfb9f181d19d';
+
     expect(async () => {
-      await escortBankAccountController.updateOne(req, accountId, updateEscortBankAccount);
+      await escortBankAccountController.updateOne(userId, accountId, updateEscortBankAccount);
       expect(mockCallToGetOne).toBeCalledTimes(1);
     }).rejects.toThrow(NotFoundException);
   });
 
   it('updateOne - Should update bank account', async () => {
-    const req = { body: { user: { id: '637c428e3cf9bfb9f181d19d' } } };
     const accountId = '637c43ae8ec19029e46a2f09';
     const updateEscortBankAccount = new UpdateCustomerBankAccountDTO();
     const mockCallToGetOne = jest
@@ -67,7 +68,9 @@ describe('EscortBankAccountController', () => {
       .spyOn(escortBankAccountService, 'updateOne')
       .mockImplementation(() => Promise.resolve(new EscortBankAccount()));
 
-    await escortBankAccountController.updateOne(req, accountId, updateEscortBankAccount);
+    const userId = '637c428e3cf9bfb9f181d19d';
+
+    await escortBankAccountController.updateOne(userId, accountId, updateEscortBankAccount);
 
     expect(mockCallToGetOne).toBeCalledTimes(1);
     expect(mockCallToUpdateOne).toBeCalledTimes(1);
